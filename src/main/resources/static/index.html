@@ -1,126 +1,133 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Color Support App</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
+
 <body>
-<div class="page-shell">
-    <aside class="panel controls-panel">
-        <div class="panel-header">
-            <div>
-                <h1>Palette Engine</h1>
-                <p>Turn one color into a full UI palette.</p>
-            </div>
-            <button id="shuffleSeedBtn" class="icon-button" type="button" aria-label="Refresh seed color">⟳</button>
-        </div>
-
-        <section class="control-group group-block scene-mode-stack">
-            <div class="control-inline">
-                <label for="scene">Scene</label>
-                <select id="scene" class="inline-select">
-                    <option value="WEB">Web Page</option>
-                    <option value="MOBILE">Mobile App</option>
-                    <option value="PRESENTATION">Presentation</option>
-                    <option value="POSTER">Poster</option>
-                    <option value="MAGAZINE">Magazine</option>
-                </select>
-            </div>
-        </section>
-
-        <section class="control-group group-block scene-mode-stack">
-            <div class="control-inline">
-                <label for="backgroundMode">Background Mode</label>
-                <select id="backgroundMode" class="inline-select">
-                    <option value="LIGHT">Light</option>
-                    <option value="DARK">Dark</option>
-                </select>
-            </div>
-        </section>
-
-        <section class="control-group group-block tone-group">
-            <div class="stack-row">
-                <label>Tone Controls</label>
-            </div>
-
-            <div class="axis-control">
-                <div class="slider-header"><label for="warmth">Warmth</label><span id="warmthValue">Neutral</span></div>
-                <input id="warmth" type="range" min="-5" max="5" step="1" value="0">
-            </div>
-
-            <div class="axis-control">
-                <div class="slider-header"><label for="saturation">Saturation</label><span id="saturationValue">Balanced</span></div>
-                <input id="saturation" type="range" min="-5" max="5" step="1" value="0">
-            </div>
-
-            <div class="axis-control">
-                <div class="slider-header"><label for="depth">Depth</label><span id="depthValue">Balanced</span></div>
-                <input id="depth" type="range" min="-5" max="5" step="1" value="0">
-            </div>
-        </section>
-
-        <section class="control-group group-block">
-            <div class="stack-row priority-head">
-                <label>Priority Ratio</label>
-                <span class="ratio-total">100 / 100</span>
-            </div>
-            <div class="weights-grid">
-                <label>Style <span id="styleLabel">34%</span></label>
-                <input id="style" type="range" min="0" max="100" step="1" value="34">
-                <label>Usability <span id="usabilityLabel">33%</span></label>
-                <input id="usability" type="range" min="0" max="100" step="1" value="33">
-                <label>Accessibility <span id="accessibilityLabel">33%</span></label>
-                <input id="accessibility" type="range" min="0" max="100" step="1" value="33">
-            </div>
-        </section>
-
-        <section class="control-group group-block">
-            <div id="primaryRoleContainer" class="fixed-colors primary-only"></div>
-
-            <details id="moreRolesDetails" class="more-roles">
-                <summary>
-                    <span>More color roles</span>
-                </summary>
-                <div id="secondaryRolesContainer" class="fixed-colors secondary-group"></div>
-            </details>
-        </section>
-
-        <div class="actions">
-            <button id="generateBtn" class="primary-button" type="button">Generate Palettes</button>
-            <a class="about-link" href="about.html">What is this? (Japanese Below)</a>
-        </div>
-    </aside>
-
-    <main id="resultsColumn" class="results-column hidden">
-        <section class="panel scene-panel compact">
-            <div class="scene-panel-top compact">
-                <div class="scene-main">
-                    <div class="eyebrow">Context</div>
-                    <div class="scene-title-row">
-                        <h2 id="sceneHeadline">Web Page</h2>
-                        <span id="sceneBadge" class="scene-panel-badge">Readability-first</span>
-                    </div>
-                    <p id="sceneSummary" class="scene-summary compact"></p>
+    <div class="page-shell">
+        <aside class="panel controls-panel">
+            <div class="panel-header">
+                <div>
+                    <h1>Palette Engine</h1>
+                    <p>Turn one color into a full UI palette.</p>
                 </div>
-                <ul id="scenePriorities" class="scene-priority-inline"></ul>
+                <button id="shuffleSeedBtn" class="icon-button" type="button" aria-label="Refresh seed color">⟳</button>
             </div>
-            <div id="activePatternNote" class="active-pattern-note in-scene-panel"></div>
-            <div class="scene-tools">
-                <button id="cvdModeBtn" class="mini-button" type="button">CVD: Normal</button>
-                <div id="cvdHint" class="cvd-hint" role="status" aria-live="polite">Click here to preview P-type / D-type color-vision simulation.</div>
-            </div>
-        </section>
 
-        <div id="message" class="message"></div>
-        <div class="card-nav">
-            <button id="cardPrevBtn" class="mini-button" type="button" aria-label="Previous palette">Prev</button>
-            <button id="cardNextBtn" class="mini-button" type="button" aria-label="Next palette">Next</button>
-        </div>
-        <section id="results" class="results-stack"></section>
-    </main>
-</div>
-<script src="js/app.js"></script>
+            <section class="control-group group-block scene-mode-stack">
+                <div class="control-inline">
+                    <label for="scene">Scene</label>
+                    <select id="scene" class="inline-select">
+                        <option value="WEB">Web Page</option>
+                        <option value="MOBILE">Mobile App</option>
+                        <option value="PRESENTATION">Presentation</option>
+                        <option value="POSTER">Poster</option>
+                        <option value="MAGAZINE">Magazine</option>
+                    </select>
+                </div>
+            </section>
+
+            <section class="control-group group-block scene-mode-stack">
+                <div class="control-inline">
+                    <label for="backgroundMode">Background Mode</label>
+                    <select id="backgroundMode" class="inline-select">
+                        <option value="LIGHT">Light</option>
+                        <option value="DARK">Dark</option>
+                    </select>
+                </div>
+            </section>
+
+            <section class="control-group group-block tone-group">
+                <div class="stack-row">
+                    <label>Tone Controls</label>
+                </div>
+
+                <div class="axis-control">
+                    <div class="slider-header"><label for="warmth">Warmth</label><span id="warmthValue">Neutral</span>
+                    </div>
+                    <input id="warmth" type="range" min="-5" max="5" step="1" value="0">
+                </div>
+
+                <div class="axis-control">
+                    <div class="slider-header"><label for="saturation">Saturation</label><span
+                            id="saturationValue">Balanced</span></div>
+                    <input id="saturation" type="range" min="-5" max="5" step="1" value="0">
+                </div>
+
+                <div class="axis-control">
+                    <div class="slider-header"><label for="depth">Depth</label><span id="depthValue">Balanced</span>
+                    </div>
+                    <input id="depth" type="range" min="-5" max="5" step="1" value="0">
+                </div>
+            </section>
+
+            <section class="control-group group-block">
+                <div class="stack-row priority-head">
+                    <label>Priority Ratio</label>
+                    <span class="ratio-total">100 / 100</span>
+                </div>
+                <div class="weights-grid">
+                    <label>Style <span id="styleLabel">34%</span></label>
+                    <input id="style" type="range" min="0" max="100" step="1" value="34">
+                    <label>Usability <span id="usabilityLabel">33%</span></label>
+                    <input id="usability" type="range" min="0" max="100" step="1" value="33">
+                    <label>Accessibility <span id="accessibilityLabel">33%</span></label>
+                    <input id="accessibility" type="range" min="0" max="100" step="1" value="33">
+                </div>
+            </section>
+
+            <section class="control-group group-block">
+                <div id="primaryRoleContainer" class="fixed-colors primary-only"></div>
+
+                <details id="moreRolesDetails" class="more-roles">
+                    <summary>
+                        <span>More color roles</span>
+                    </summary>
+                    <div id="secondaryRolesContainer" class="fixed-colors secondary-group"></div>
+                </details>
+            </section>
+
+            <div class="actions">
+                <button id="generateBtn" class="primary-button" type="button">Generate Palettes</button>
+                <a class="about-link" href="about.html">What is this?</a>
+            </div>
+        </aside>
+
+        <main id="resultsColumn" class="results-column hidden">
+            <section class="panel scene-panel compact">
+                <div class="scene-panel-top compact">
+                    <div class="scene-main">
+                        <div class="eyebrow">Context</div>
+                        <div class="scene-title-row">
+                            <h2 id="sceneHeadline">Web Page</h2>
+                            <span id="sceneBadge" class="scene-panel-badge">Readability-first</span>
+                        </div>
+                        <p id="sceneSummary" class="scene-summary compact"></p>
+                    </div>
+                    <ul id="scenePriorities" class="scene-priority-inline"></ul>
+                </div>
+                <div id="activePatternNote" class="active-pattern-note in-scene-panel"></div>
+                <div class="scene-tools">
+                    <button id="cvdModeBtn" class="mini-button" type="button">CVD: Normal</button>
+                    <div id="cvdHint" class="cvd-hint" role="status" aria-live="polite">Click here to preview P-type /
+                        D-type color-vision simulation.</div>
+                </div>
+            </section>
+
+            <div id="message" class="message"></div>
+            <div class="card-nav">
+                <button id="cardPrevBtn" class="mini-button" type="button" aria-label="Previous palette">Prev</button>
+                <button id="cardNextBtn" class="mini-button" type="button" aria-label="Next palette">Next</button>
+            </div>
+            <section id="results" class="results-stack"></section>
+        </main>
+    </div>
+    <script src="js/app.js"></script>
 </body>
+
 </html>
