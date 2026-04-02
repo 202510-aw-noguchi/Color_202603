@@ -116,16 +116,16 @@ public class PaletteService {
                 secondaryL = request.getBackgroundMode() == BackgroundMode.LIGHT ? secondaryL - 2 : secondaryL + 8;
             }
             case SERENE -> {
-                bgL = request.getBackgroundMode() == BackgroundMode.LIGHT ? 97.5 : 12.0;
-                surfaceL = request.getBackgroundMode() == BackgroundMode.LIGHT ? 95.0 : 18.5;
-                borderL = request.getBackgroundMode() == BackgroundMode.LIGHT ? 88.5 : 25.0;
-                textL = request.getBackgroundMode() == BackgroundMode.LIGHT ? 17.0 : 91.0;
+                bgL = request.getBackgroundMode() == BackgroundMode.LIGHT ? 98.4 : 13.5;
+                surfaceL = request.getBackgroundMode() == BackgroundMode.LIGHT ? 96.6 : 20.0;
+                borderL = request.getBackgroundMode() == BackgroundMode.LIGHT ? 90.5 : 24.0;
+                textL = request.getBackgroundMode() == BackgroundMode.LIGHT ? 20.5 : 87.5;
 
-                secondaryHue += 28;
-                primarySat = ColorUtils.clamp(primarySat - 18, 6, 66);
-                secondarySat = ColorUtils.clamp(secondarySat - 22, 6, 58);
-                primaryL += 8;
-                secondaryL += 12;
+                secondaryHue += 16;
+                primarySat = ColorUtils.clamp(primarySat - 26, 5, 52);
+                secondarySat = ColorUtils.clamp(secondarySat - 30, 5, 46);
+                primaryL += 10;
+                secondaryL += 14;
             }
             case IMPACT -> {
                 bgL = request.getBackgroundMode() == BackgroundMode.LIGHT ? 93.0 : 8.0;
@@ -151,8 +151,10 @@ public class PaletteService {
         roles.put(RoleName.BORDER, ColorUtils.hslToHex(new Hsl(primaryHue, 8, borderL)));
 
         applyFixedColorRules(roles, request.getFixedColors());
+        enforcePrintSafePalette(roles, request.getScene(), request.getBackgroundMode(), request.getFixedColors());
 
         ensureCoreTextContrast(roles, request.getFixedColors(), policy.textMinContrast());
+        tuneSereneTextToAaBand(roles, pattern, request.getFixedColors());
 
         double textBg = contrastService.contrastRatio(
                 roles.get(RoleName.TEXT),
@@ -205,6 +207,53 @@ public class PaletteService {
                 fixedColors,
                 minimum);
         roles.put(RoleName.TEXT, textOnSurface.color());
+    }
+
+    private void tuneSereneTextToAaBand(
+            Map<RoleName, String> roles,
+            PatternName pattern,
+            Map<RoleName, FixedColorRule> fixedColors) {
+        if (pattern != PatternName.SERENE || isFixedLocked(RoleName.TEXT, fixedColors)) {
+            return;
+        }
+
+        String text = roles.get(RoleName.TEXT);
+        String background = roles.get(RoleName.BACKGROUND);
+        String surface = roles.get(RoleName.SURFACE);
+        if (text == null || background == null || surface == null) {
+            return;
+        }
+
+        String tuned = findAaBandText(text, background, surface);
+        if (tuned != null) {
+            roles.put(RoleName.TEXT, tuned);
+        }
+    }
+
+    private String findAaBandText(String currentText, String background, String surface) {
+        Hsl base = ColorUtils.hexToHsl(currentText);
+        double target = 5.4;
+        String best = null;
+        double bestScore = Double.MAX_VALUE;
+
+        for (double lightness = 0; lightness <= 100; lightness += 0.5) {
+            String candidate = ColorUtils.hslToHex(new Hsl(base.h(), base.s(), lightness));
+            double cBg = contrastService.contrastRatio(candidate, background);
+            double cSurface = contrastService.contrastRatio(candidate, surface);
+            double worst = Math.min(cBg, cSurface);
+
+            if (worst < 4.5 || worst >= 7.0) {
+                continue;
+            }
+
+            double score = Math.abs(worst - target) + Math.abs(lightness - base.l()) * 0.02;
+            if (score < bestScore) {
+                bestScore = score;
+                best = candidate;
+            }
+        }
+
+        return best;
     }
 
     private ContrastService.AdjustmentResult enforceTextContrast(
@@ -265,6 +314,119 @@ public class PaletteService {
 
             roles.put(role, ColorUtils.hslToHex(next));
         }
+    }
+
+    private void enforcePrintSafePalette(
+            Map<RoleName, String> roles,
+            Scene scene,
+            BackgroundMode backgroundMode,
+            Map<RoleName, FixedColorRule> fixedColors) {
+        if (scene != Scene.POSTER && scene != Scene.MAGAZINE) {
+            return;
+        }
+
+        double accentSatMax = scene == Scene.POSTER ? 82 : 72;
+
+        for (RoleName role : RoleName.values()) {
+            String current = roles.get(role);
+            if (current == null || isFixedLocked(role, fixedColors)) {
+                continue;
+            }
+
+            Hsl hsl = ColorUtils.hexToHsl(current);
+            Hsl adjusted = adjustForPrintRole(hsl, role, backgroundMode, accentSatMax);
+
+            // Approximate CMYK total area coverage reduction for print-friendly output.
+            double tacLimit = role == RoleName.TEXT ? 320 : 300;
+            String printableHex = reduceTotalInkCoverage(ColorUtils.hslToHex(adjusted), tacLimit);
+            roles.put(role, printableHex);
+        }
+    }
+
+    private boolean isFixedLocked(RoleName role, Map<RoleName, FixedColorRule> fixedColors) {
+        if (fixedColors == null) {
+            return false;
+        }
+        FixedColorRule fixed = fixedColors.get(role);
+        return fixed != null && fixed.isEnabled() && fixed.getRule() == AdjustRule.FIXED;
+    }
+
+    private Hsl adjustForPrintRole(Hsl hsl, RoleName role, BackgroundMode backgroundMode, double accentSatMax) {
+        double s = hsl.s();
+        double l = hsl.l();
+
+        switch (role) {
+            case BACKGROUND -> {
+                s = ColorUtils.clamp(s, 2, 12);
+                l = backgroundMode == BackgroundMode.DARK
+                        ? ColorUtils.clamp(l, 7, 18)
+                        : ColorUtils.clamp(l, 90, 98);
+            }
+            case SURFACE -> {
+                s = ColorUtils.clamp(s, 2, 14);
+                l = backgroundMode == BackgroundMode.DARK
+                        ? ColorUtils.clamp(l, 10, 24)
+                        : ColorUtils.clamp(l, 84, 96);
+            }
+            case TEXT -> {
+                s = ColorUtils.clamp(s, 0, 12);
+                l = backgroundMode == BackgroundMode.DARK
+                        ? ColorUtils.clamp(l, 82, 98)
+                        : ColorUtils.clamp(l, 8, 24);
+            }
+            case BORDER -> {
+                s = ColorUtils.clamp(s, 2, 16);
+                l = backgroundMode == BackgroundMode.DARK
+                        ? ColorUtils.clamp(l, 20, 42)
+                        : ColorUtils.clamp(l, 68, 90);
+            }
+            case PRIMARY_ACCENT, SECONDARY_ACCENT -> {
+                s = ColorUtils.clamp(s, 10, accentSatMax);
+                l = ColorUtils.clamp(l, 20, 74);
+            }
+        }
+        return new Hsl(hsl.h(), s, l);
+    }
+
+    private String reduceTotalInkCoverage(String hex, double maxTac) {
+        String current = hex;
+        Hsl tuned = ColorUtils.hexToHsl(current);
+
+        for (int i = 0; i < 28; i++) {
+            if (totalInkCoverage(current) <= maxTac) {
+                return current;
+            }
+            tuned = new Hsl(
+                    tuned.h(),
+                    ColorUtils.clamp(tuned.s() - 1.5, 0, 95),
+                    ColorUtils.clamp(tuned.l() + 1.2, 4, 98));
+            current = ColorUtils.hslToHex(tuned);
+        }
+        return current;
+    }
+
+    private double totalInkCoverage(String hex) {
+        int[] rgb = ColorUtils.hexToRgb(hex);
+        double r = rgb[0] / 255.0;
+        double g = rgb[1] / 255.0;
+        double b = rgb[2] / 255.0;
+
+        double k = 1.0 - Math.max(r, Math.max(g, b));
+        if (k >= 0.999999) {
+            return 400.0;
+        }
+
+        double denominator = 1.0 - k;
+        double c = denominator == 0 ? 0 : (1.0 - r - k) / denominator;
+        double m = denominator == 0 ? 0 : (1.0 - g - k) / denominator;
+        double y = denominator == 0 ? 0 : (1.0 - b - k) / denominator;
+
+        c = ColorUtils.clamp(c, 0, 1);
+        m = ColorUtils.clamp(m, 0, 1);
+        y = ColorUtils.clamp(y, 0, 1);
+        k = ColorUtils.clamp(k, 0, 1);
+
+        return (c + m + y + k) * 100.0;
     }
 
     private String gradeForPolicy(

@@ -1,4 +1,4 @@
-const ROLE_ORDER = [
+﻿const ROLE_ORDER = [
   "PRIMARY_ACCENT",
   "SECONDARY_ACCENT",
   "BACKGROUND",
@@ -17,7 +17,7 @@ const ROLE_LABELS = {
 };
 
 const ROLE_DESCRIPTIONS = {
-  PRIMARY_ACCENT: "Seed Color · the user-selected anchor color for the palette.",
+  PRIMARY_ACCENT: "Seed Color / the user-selected anchor color for the palette.",
   SECONDARY_ACCENT: "Supporting accent that helps pattern separation and emphasis.",
   BACKGROUND: "Main canvas color.",
   SURFACE: "Cards, panels, and layered sections.",
@@ -36,34 +36,41 @@ const SCENE_META = {
   WEB: {
     label: "Web Page",
     badge: "Readability-first",
-    summary: "読みやすさと情報整理を優先した、標準的で安定感のある構成です。",
+    summary: "Optimized for sustained reading, stable hierarchy, and calm emphasis.",
     priorities: ["Long-form readability", "Stable layering", "Balanced accents"]
   },
   MOBILE: {
     label: "Mobile App",
     badge: "Dense UI ready",
-    summary: "小さな部品でも見分けやすく、情報密度の高い画面でも使いやすい構成です。",
+    summary: "Designed for compact screens with clear tap emphasis and strong separation.",
     priorities: ["Small-text clarity", "Clear tap emphasis", "Sharper separation"]
   },
   PRESENTATION: {
     label: "Presentation",
     badge: "Projection-safe",
-    summary: "遠くからでも読みやすいように、文字と強調要素の視認性を高めた構成です。",
+    summary: "Tuned for distance viewing with stronger grouping and high legibility.",
     priorities: ["Distance readability", "Clear grouping", "Stronger emphasis"]
   },
   POSTER: {
     label: "Poster",
     badge: "High impact",
-    summary: "第一印象の強さを重視し、主役となる色の存在感を引き上げた構成です。",
+    summary: "Built for immediate visual impact with bold accents and clear focal points.",
     priorities: ["Immediate impact", "Hero emphasis", "Bold accents"]
   },
   MAGAZINE: {
     label: "Magazine",
     badge: "Editorial balance",
-    summary: "読み物としての落ち着きと、誌面らしい上品なアクセントの両立を狙った構成です。",
+    summary: "Balanced for editorial rhythm, comfortable reading, and tasteful accents.",
     priorities: ["Comfortable reading", "Gentle transitions", "Tasteful accents"]
   }
 };
+
+function apiUrl(path) {
+  if (window.location.protocol === "file:") {
+    return `http://localhost:8080/api${path}`;
+  }
+  return `/api${path}`;
+}
 
 const state = { fixedColors: {}, activePatternIndex: 0, palettes: [] };
 
@@ -164,7 +171,7 @@ function rebalanceWeights(targetKey, newValue) {
 }
 
 async function loadDefaults(seedHex) {
-  const response = await fetch(`/api/defaults?baseHex=${encodeURIComponent(seedHex)}`);
+  const response = await fetch(`${apiUrl("/defaults")}?baseHex=${encodeURIComponent(seedHex)}`);
   if (!response.ok) throw new Error("Failed to load default role colors.");
   const data = await response.json();
   state.fixedColors = data.fixedColors || {};
@@ -289,6 +296,16 @@ function updateScenePanel() {
   elements.scenePriorities.innerHTML = meta.priorities.map((item) => `<li>${item}</li>`).join("");
 }
 
+function refreshResultsForCurrentScene() {
+  if (!state.palettes.length) return;
+  renderResults(state.palettes);
+}
+
+function handleSceneChange() {
+  updateScenePanel();
+  refreshResultsForCurrentScene();
+}
+
 function scenePreviewMarkup(scene, roles) {
   const text = roles.TEXT;
   const bg = roles.BACKGROUND;
@@ -302,7 +319,7 @@ function scenePreviewMarkup(scene, roles) {
     return `<div class="preview-shell preview-web" style="background:${bg};"><div class="web-nav" style="background:${surface}; color:${text}; border-color:${border};"><div class="web-brand" style="color:${primary};">Studio</div><div class="web-links"><span>About</span><span>Work</span><span>Contact</span></div></div><div class="web-hero" style="background:${surface}; border-color:${border};"><div class="web-copy"><div class="preview-kicker" style="color:${secondary};">Web Page</div><h3 style="color:${text};">Readable layout with clear hierarchy.</h3><p style="color:${text};">The seed color now lives in Primary Accent, so the palette structure is easier to understand.</p><div class="preview-actions"><button class="secondary-button" style="background:${primary}; color:${primaryText}; border-color:${primary};">Primary</button><button class="secondary-button ghost" style="color:${secondary}; border-color:${secondary};">Secondary</button></div></div></div></div>`;
   }
   if (scene === "MOBILE") {
-    return `<div class="preview-shell preview-mobile" style="background:${bg};"><div class="phone-frame" style="background:${surface}; border-color:${border};"><div class="phone-status" style="color:${text};"><span>9:41</span><span style="color:${primary};">● ● ●</span></div><div class="phone-card phone-hero" style="background:${bg}; border-color:${border};"><div class="preview-kicker" style="color:${secondary};">Mobile App</div><h3 style="color:${text};">Quick scanning on compact screens.</h3><p style="color:${text};">Primary Accent doubles as the seed color, reducing confusion in the controls.</p></div><button class="phone-cta" style="background:${primary}; color:${primaryText};">Continue</button></div></div>`;
+    return `<div class="preview-shell preview-mobile" style="background:${bg};"><div class="phone-frame" style="background:${surface}; border-color:${border};"><div class="phone-notch" style="background:${text};"></div><div class="phone-status" style="color:${text};"><span>9:41</span><span style="color:${primary};">5G 96%</span></div><div class="phone-appbar" style="border-color:${border}; color:${text};"><span>Color Feed</span><span class="phone-dot" style="background:${primary};"></span></div><div class="phone-story-row"><span style="background:${primary};"></span><span style="background:${secondary};"></span><span style="background:${border};"></span></div><div class="phone-card phone-hero" style="background:${bg}; border-color:${border};"><div class="preview-kicker" style="color:${secondary};">Mobile App</div><h3 style="color:${text};">Thumb-first interface with clear focus.</h3><p style="color:${text};">Cards and actions are sized for one-handed use and quick scanning.</p></div><div class="phone-list"><div class="phone-list-row" style="border-color:${border};"><span style="color:${text};">Recommended palette</span><strong style="color:${primary};">New</strong></div><div class="phone-list-row" style="border-color:${border};"><span style="color:${text};">Saved combinations</span><strong style="color:${secondary};">12</strong></div></div><button class="phone-cta" style="background:${primary}; color:${primaryText};">Apply Theme</button></div></div>`;
   }
   if (scene === "PRESENTATION") {
     return `<div class="preview-shell preview-presentation" style="background:${bg};"><div class="slide-frame" style="background:${surface}; border-color:${border};"><div class="slide-topbar" style="background:${primary}; color:${primaryText};">Quarterly Strategy</div><div class="slide-content"><div class="slide-left"><div class="preview-kicker" style="color:${secondary};">Presentation</div><h3 style="color:${text};">High-contrast messaging for distant viewing.</h3><p style="color:${text};">Clearer roles make the preview easier to understand while keeping pattern intent intact.</p></div><div class="slide-chart"><div class="bar" style="height:56%; background:${secondary};"></div><div class="bar" style="height:82%; background:${primary};"></div><div class="bar" style="height:68%; background:${border};"></div></div></div></div></div>`;
@@ -310,7 +327,7 @@ function scenePreviewMarkup(scene, roles) {
   if (scene === "POSTER") {
     return `<div class="preview-shell preview-poster" style="background:${bg};"><div class="poster-stage" style="border-color:${border};"><div class="poster-glow" style="background:${primary};"></div><div class="poster-content"><div class="preview-kicker" style="color:${secondary};">Poster</div><h3 style="color:${text};">Bold hierarchy with immediate visual pull.</h3><p style="color:${text};">The chosen seed color is now directly reflected in the main hero accent.</p></div></div></div>`;
   }
-  return `<div class="preview-shell preview-magazine" style="background:${bg};"><div class="magazine-frame" style="background:${surface}; border-color:${border};"><div class="magazine-column"><div class="preview-kicker" style="color:${secondary};">Magazine</div><h3 style="color:${text};">Editorial rhythm with calmer emphasis.</h3><p style="color:${text};">Seed and fixed-role controls are now merged into one simpler color roles section.</p></div><div class="magazine-photo" style="background:${primary};"><div class="magazine-badge" style="background:${bg}; color:${secondary}; border-color:${border};">Feature</div></div></div></div>`;
+  return `<div class="preview-shell preview-magazine" style="background:${bg};"><div class="magazine-frame" style="background:${surface}; border-color:${border};"><div class="magazine-masthead" style="border-color:${border}; color:${text};"><span class="magazine-issue">Issue 42</span><span class="magazine-title" style="color:${primary};">CITY TONES</span></div><div class="magazine-grid"><div class="magazine-column"><div class="preview-kicker" style="color:${secondary};">Magazine</div><h3 style="color:${text};">Editorial rhythm with stronger hierarchy.</h3><p style="color:${text};">Lead story, supporting column, and pull-quote mimic a real magazine spread.</p><p class="magazine-byline" style="color:${secondary};">By Color Desk</p></div><div class="magazine-side"><div class="magazine-photo" style="background:${primary};"><div class="magazine-badge" style="background:${bg}; color:${secondary}; border-color:${border};">Cover Story</div></div><blockquote class="magazine-quote" style="color:${text}; border-color:${border};">Contrast drives attention, whitespace keeps the page readable.</blockquote></div></div></div></div>`;
 }
 
 function patternNoteSummary(palette) {
@@ -354,8 +371,8 @@ function renderResults(palettes) {
           <div class="meta-card">
             <h4>Contrast</h4>
             <ul class="contrast-list">
-              <li>Text / Background: ${formatRatio(palette.contrast.textOnBackground)} · ${contrastLabel(palette.contrast.textOnBackground)}</li>
-              <li>Text / Surface: ${formatRatio(palette.contrast.textOnSurface)} · ${contrastLabel(palette.contrast.textOnSurface)}</li>
+              <li>Text / Background: ${formatRatio(palette.contrast.textOnBackground)} / ${contrastLabel(palette.contrast.textOnBackground)}</li>
+              <li>Text / Surface: ${formatRatio(palette.contrast.textOnSurface)} / ${contrastLabel(palette.contrast.textOnSurface)}</li>
               <li>Primary / Background: ${formatRatio(palette.contrast.primaryOnBackground)}</li>
               <li>Secondary / Background: ${formatRatio(palette.contrast.secondaryOnBackground)}</li>
             </ul>
@@ -381,17 +398,7 @@ function renderResults(palettes) {
 }
 
 function translatePatternNotes(text) {
-  if (!text) return "";
-  const rules = [
-    ["Primary Accent acts as the production-safe seed color anchor.", "Primary Accent を起点色として扱う、最も安全性の高い基準案です。"],
-    ["Text readability is emphasized more strongly than Baseline.", "Baseline よりも文字の読みやすさを強く重視した案です。"],
-    ["Accent freedom is expanded while core text pairs stay protected.", "本文まわりの可読性を守りつつ、アクセント色の自由度を高めた案です。"],
-    ["Accent relationships are softened for a calmer feel.", "アクセント同士の関係をやわらかくし、落ち着いた印象に寄せた案です。"],
-    ["Accent contrast is freer to create stronger visual punch.", "より強い印象を出すために、アクセントの差を大きく取った案です。"]
-  ];
-  let out = text;
-  rules.forEach(([en, ja]) => { out = out.replaceAll(en, ja); });
-  return out;
+  return text || "";
 }
 
 function toTitleCase(value) {
@@ -420,7 +427,7 @@ async function generatePalettes() {
     setMessage("");
     updateScenePanel();
     const request = collectRequest();
-    const response = await fetch("/api/palettes", {
+    const response = await fetch(apiUrl("/palettes"), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(request)
@@ -432,6 +439,10 @@ async function generatePalettes() {
     renderResults(data.palettes || []);
   } catch (error) {
     elements.resultsColumn.classList.remove("hidden");
+    if (error instanceof TypeError && String(error.message || "").includes("Failed to fetch")) {
+      setMessage("Failed to fetch API. Run Spring Boot on http://localhost:8080 and open the app via that URL.", true);
+      return;
+    }
     setMessage(error.message || "Unexpected error.", true);
   }
 }
@@ -446,7 +457,7 @@ function randomizeSeedColor() {
 }
 
 function bindEvents() {
-  elements.scene.addEventListener("change", updateScenePanel);
+  elements.scene.addEventListener("change", handleSceneChange);
   elements.backgroundMode.addEventListener("change", updateScenePanel);
   elements.warmth.addEventListener("input", updateAxisLabels);
   elements.saturation.addEventListener("input", updateAxisLabels);
