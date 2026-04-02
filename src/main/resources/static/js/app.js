@@ -17,7 +17,7 @@ const ROLE_LABELS = {
 };
 
 const ROLE_DESCRIPTIONS = {
-  PRIMARY_ACCENT: "Seed Color / the user-selected anchor color for the palette.",
+  PRIMARY_ACCENT: "",
   SECONDARY_ACCENT: "Supporting accent that helps pattern separation and emphasis.",
   BACKGROUND: "Main canvas color.",
   SURFACE: "Cards, panels, and layered sections.",
@@ -65,6 +65,8 @@ const SCENE_META = {
   }
 };
 
+const CVD_MODES = ["NORMAL", "PROTAN", "DEUTAN"];
+
 function apiUrl(path) {
   if (window.location.protocol === "file:") {
     return `http://localhost:8080/api${path}`;
@@ -72,7 +74,7 @@ function apiUrl(path) {
   return `/api${path}`;
 }
 
-const state = { fixedColors: {}, activePatternIndex: 0, palettes: [] };
+const state = { fixedColors: {}, activePatternIndex: 0, palettes: [], cvdMode: "NORMAL", cvdHintTimer: null };
 
 const elements = {
   scene: document.getElementById("scene"),
@@ -99,9 +101,13 @@ const elements = {
   results: document.getElementById("results"),
   resultsColumn: document.getElementById("resultsColumn"),
   message: document.getElementById("message"),
+  cardPrevBtn: document.getElementById("cardPrevBtn"),
+  cardNextBtn: document.getElementById("cardNextBtn"),
   activePatternNote: document.getElementById("activePatternNote"),
   generateBtn: document.getElementById("generateBtn"),
-  shuffleSeedBtn: document.getElementById("shuffleSeedBtn")
+  shuffleSeedBtn: document.getElementById("shuffleSeedBtn"),
+  cvdModeBtn: document.getElementById("cvdModeBtn"),
+  cvdHint: document.getElementById("cvdHint")
 };
 
 function normalizeHex(hex) {
@@ -127,12 +133,6 @@ function updateWeightLabels() {
   elements.styleLabel.textContent = `${elements.style.value}%`;
   elements.usabilityLabel.textContent = `${elements.usability.value}%`;
   elements.accessibilityLabel.textContent = `${elements.accessibility.value}%`;
-  const entries = [
-    { label: "Style", value: Number(elements.style.value) },
-    { label: "Usability", value: Number(elements.usability.value) },
-    { label: "Accessibility", value: Number(elements.accessibility.value) }
-  ].sort((a, b) => b.value - a.value);
-  elements.weightSummary.textContent = `${entries[0].label} leads, followed by ${entries[1].label}.`;
 }
 
 function rebalanceWeights(targetKey, newValue) {
@@ -179,19 +179,23 @@ async function loadDefaults(seedHex) {
 }
 
 function roleCardMarkup(role, config) {
+  const enabled = !!(config && config.enabled);
   return `
-    <div class="fixed-color-card ${role === "PRIMARY_ACCENT" ? "seed-card" : ""}">
+    <div class="fixed-color-card">
       <div class="role-top">
         <div>
-          <h3>${ROLE_LABELS[role]}${role === "PRIMARY_ACCENT" ? ' <span class="seed-pill">Seed</span>' : ""}</h3>
-          <p>${ROLE_DESCRIPTIONS[role]}</p>
+          <h3>${ROLE_LABELS[role]}</h3>
+          ${ROLE_DESCRIPTIONS[role] ? `<p>${ROLE_DESCRIPTIONS[role]}</p>` : ""}
         </div>
-        <button class="mini-button" type="button" data-action="toggle">${config && config.enabled ? "Pinned" : "Open"}</button>
+        <button class="toggle-pin ${enabled ? "is-on" : ""}" type="button" data-action="toggle" aria-pressed="${enabled ? "true" : "false"}">
+          <span class="toggle-label">Pinned</span>
+          <span class="toggle-switch" aria-hidden="true"></span>
+        </button>
       </div>
       <div class="role-row">
         <input type="color" data-field="hexColor" value="${(config && config.hex) || "#000000"}">
         <input type="text" data-field="hexText" value="${(config && config.hex) || "#000000"}" maxlength="7">
-        <select data-field="rule">
+        <select data-field="rule" class="inline-select role-select">
           ${Object.entries(RULE_LABELS).map(([value, label]) => `<option value="${value}" ${config && config.rule === value ? "selected" : ""}>${label}</option>`).join("")}
         </select>
       </div>
@@ -276,6 +280,85 @@ function contrastLabel(ratio) {
   return "Fail";
 }
 
+function clampByte(value) {
+  return Math.max(0, Math.min(255, Math.round(value)));
+}
+
+function rgbToHex(rgb) {
+  return `#${clampByte(rgb.r).toString(16).padStart(2, "0")}${clampByte(rgb.g).toString(16).padStart(2, "0")}${clampByte(rgb.b).toString(16).padStart(2, "0")}`;
+}
+
+function simulateCvdHex(hex, mode) {
+  if (mode === "NORMAL") return hex;
+
+  const { r, g, b } = hexToRgb(hex);
+  const m = mode === "PROTAN"
+    ? [
+        [0.56667, 0.43333, 0.0],
+        [0.55833, 0.44167, 0.0],
+        [0.0, 0.24167, 0.75833]
+      ]
+    : [
+        [0.625, 0.375, 0.0],
+        [0.7, 0.3, 0.0],
+        [0.0, 0.3, 0.7]
+      ];
+
+  return rgbToHex({
+    r: m[0][0] * r + m[0][1] * g + m[0][2] * b,
+    g: m[1][0] * r + m[1][1] * g + m[1][2] * b,
+    b: m[2][0] * r + m[2][1] * g + m[2][2] * b
+  });
+}
+
+function displayRolesForMode(roles) {
+  const out = {};
+  Object.entries(roles || {}).forEach(([role, hex]) => {
+    out[role] = simulateCvdHex(hex, state.cvdMode);
+  });
+  return out;
+}
+
+function updateCvdButtonLabel() {
+  if (!elements.cvdModeBtn) return;
+  elements.cvdModeBtn.textContent =
+    state.cvdMode === "NORMAL" ? "CVD: Normal"
+      : state.cvdMode === "PROTAN" ? "CVD: P-type"
+      : "CVD: D-type";
+}
+
+function cycleCvdMode() {
+  const idx = CVD_MODES.indexOf(state.cvdMode);
+  state.cvdMode = CVD_MODES[(idx + 1) % CVD_MODES.length];
+  updateCvdButtonLabel();
+  hideCvdHint();
+  refreshResultsForCurrentScene();
+}
+
+function scrollToTopOnDesktop() {
+  if (window.innerWidth <= 1200) return;
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function hideCvdHint() {
+  if (!elements.cvdHint) return;
+  elements.cvdHint.classList.remove("show");
+  if (state.cvdHintTimer) {
+    clearTimeout(state.cvdHintTimer);
+    state.cvdHintTimer = null;
+  }
+}
+
+function showCvdHint() {
+  if (!elements.cvdHint) return;
+  hideCvdHint();
+  elements.cvdHint.classList.add("show");
+  state.cvdHintTimer = setTimeout(() => {
+    elements.cvdHint.classList.remove("show");
+    state.cvdHintTimer = null;
+  }, 5000);
+}
+
 function gradeClassName(grade) {
   if (grade === "AAA") return "grade-AAA";
   if (grade === "AA") return "grade-AA";
@@ -292,7 +375,7 @@ function updateScenePanel() {
   const meta = SCENE_META[elements.scene.value];
   elements.sceneHeadline.textContent = meta.label;
   elements.sceneBadge.textContent = meta.badge;
-  elements.sceneSummary.textContent = meta.summary;
+  elements.sceneSummary.innerHTML = `${meta.label} <span class="context-badge">${meta.badge}</span>：${meta.summary}`;
   elements.scenePriorities.innerHTML = meta.priorities.map((item) => `<li>${item}</li>`).join("");
 }
 
@@ -336,7 +419,40 @@ function patternNoteSummary(palette) {
 
 function updateActivePatternNote() {
   const palette = state.palettes[state.activePatternIndex];
-  elements.activePatternNote.textContent = palette ? patternNoteSummary(palette) : "";
+  if (!palette) {
+    elements.activePatternNote.innerHTML = "";
+    return;
+  }
+  elements.activePatternNote.innerHTML = `${toTitleCase(palette.name)} <span class="context-badge">${palette.subtitle}</span>：${patternNoteSummary(palette)}`;
+}
+
+function updateStackLayout() {
+  const stack = elements.results;
+  if (!stack) return;
+
+  const width = stack.clientWidth;
+  if (width <= 0) return;
+
+  const activeWidth = Math.max(320, Math.min(width * 0.34, 520));
+  const inactiveWidth = Math.max(190, Math.min((width - activeWidth) / 4 + 48, 360));
+  const overlap = Math.max(28, Math.min((inactiveWidth * 4 + activeWidth - width) / 4, 120));
+
+  stack.style.setProperty("--stack-active-width", `${activeWidth}px`);
+  stack.style.setProperty("--stack-inactive-width", `${inactiveWidth}px`);
+  stack.style.setProperty("--stack-overlap", `${overlap}px`);
+}
+
+function updateCardNavState() {
+  const disabled = state.palettes.length <= 1;
+  if (elements.cardPrevBtn) elements.cardPrevBtn.disabled = disabled;
+  if (elements.cardNextBtn) elements.cardNextBtn.disabled = disabled;
+}
+
+function shiftActiveCard(delta) {
+  const total = state.palettes.length;
+  if (!total) return;
+  state.activePatternIndex = (state.activePatternIndex + delta + total) % total;
+  renderResults(state.palettes);
 }
 
 function renderResults(palettes) {
@@ -347,25 +463,25 @@ function renderResults(palettes) {
     const card = document.createElement("article");
     card.className = `palette-card stack-card ${index === state.activePatternIndex ? "active" : ""}`;
     card.tabIndex = 0;
+    const displayRoles = displayRolesForMode(palette.roles);
 
     const roleRows = ROLE_ORDER.map((role) => {
-      const hex = palette.roles[role];
+      const hex = displayRoles[role];
       return `<div class="color-row-display" style="background:${hex};color:${getReadableTextColor(hex)};"><span>${ROLE_LABELS[role]}</span><span>${hex}</span></div>`;
     }).join("");
 
     card.innerHTML = `
-      <div class="stack-label" title="${toTitleCase(palette.name)}">${toTitleCase(palette.name)}</div>
       <div class="stack-content">
         <div class="palette-header">
           <div>
             <h2>${toTitleCase(palette.name)}</h2>
-            <p>${palette.subtitle}</p>
+            <p>${palette.name === "BASELINE" ? "" : palette.subtitle}</p>
           </div>
           <span class="grade-badge ${gradeClassName(palette.grade)}">${palette.grade}</span>
         </div>
         <div class="color-stack">${roleRows}</div>
         <div class="preview-area">
-          ${scenePreviewMarkup(elements.scene.value, palette.roles)}
+          ${scenePreviewMarkup(elements.scene.value, displayRoles)}
         </div>
         <div class="meta-block">
           <div class="meta-card">
@@ -395,6 +511,8 @@ function renderResults(palettes) {
   });
 
   updateActivePatternNote();
+  updateStackLayout();
+  updateCardNavState();
 }
 
 function translatePatternNotes(text) {
@@ -437,6 +555,8 @@ async function generatePalettes() {
     elements.resultsColumn.classList.remove("hidden");
     state.activePatternIndex = 0;
     renderResults(data.palettes || []);
+    scrollToTopOnDesktop();
+    showCvdHint();
   } catch (error) {
     elements.resultsColumn.classList.remove("hidden");
     if (error instanceof TypeError && String(error.message || "").includes("Failed to fetch")) {
@@ -467,6 +587,12 @@ function bindEvents() {
   elements.accessibility.addEventListener("input", (e) => rebalanceWeights("accessibility", e.target.value));
   elements.generateBtn.addEventListener("click", generatePalettes);
   elements.shuffleSeedBtn.addEventListener("click", randomizeSeedColor);
+  if (elements.cardPrevBtn) elements.cardPrevBtn.addEventListener("click", () => shiftActiveCard(-1));
+  if (elements.cardNextBtn) elements.cardNextBtn.addEventListener("click", () => shiftActiveCard(1));
+  if (elements.cvdModeBtn) {
+    elements.cvdModeBtn.addEventListener("click", cycleCvdMode);
+  }
+  window.addEventListener("resize", updateStackLayout);
 }
 
 async function init() {
@@ -474,6 +600,8 @@ async function init() {
   updateAxisLabels();
   updateWeightLabels();
   updateScenePanel();
+  updateCvdButtonLabel();
+  updateStackLayout();
   try {
     await loadDefaults("#4f46e5");
   } catch (error) {

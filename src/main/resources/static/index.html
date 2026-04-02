@@ -11,16 +11,16 @@
     <aside class="panel controls-panel">
         <div class="panel-header">
             <div>
-                <h1>Color Support App</h1>
-                <p>Generate accessible six-role palettes with the seed color integrated into Primary Accent.</p>
+                <h1>Palette Engine</h1>
+                <p>Turn one color into a full UI palette.</p>
             </div>
             <button id="shuffleSeedBtn" class="icon-button" type="button" aria-label="Refresh seed color">⟳</button>
         </div>
 
-        <section class="two-col">
-            <div class="control-group">
+        <section class="control-group group-block scene-mode-stack">
+            <div class="control-inline">
                 <label for="scene">Scene</label>
-                <select id="scene">
+                <select id="scene" class="inline-select">
                     <option value="WEB">Web Page</option>
                     <option value="MOBILE">Mobile App</option>
                     <option value="PRESENTATION">Presentation</option>
@@ -28,34 +28,43 @@
                     <option value="MAGAZINE">Magazine</option>
                 </select>
             </div>
-            <div class="control-group">
+        </section>
+
+        <section class="control-group group-block scene-mode-stack">
+            <div class="control-inline">
                 <label for="backgroundMode">Background Mode</label>
-                <select id="backgroundMode">
+                <select id="backgroundMode" class="inline-select">
                     <option value="LIGHT">Light</option>
                     <option value="DARK">Dark</option>
                 </select>
             </div>
         </section>
 
-        <section class="control-group">
-            <div class="slider-header"><label for="warmth">Warmth</label><span id="warmthValue">Neutral</span></div>
-            <input id="warmth" type="range" min="-5" max="5" step="1" value="0">
-        </section>
-
-        <section class="control-group">
-            <div class="slider-header"><label for="saturation">Saturation</label><span id="saturationValue">Balanced</span></div>
-            <input id="saturation" type="range" min="-5" max="5" step="1" value="0">
-        </section>
-
-        <section class="control-group">
-            <div class="slider-header"><label for="depth">Depth</label><span id="depthValue">Balanced</span></div>
-            <input id="depth" type="range" min="-5" max="5" step="1" value="0">
-        </section>
-
-        <section class="control-group">
+        <section class="control-group group-block tone-group">
             <div class="stack-row">
+                <label>Tone Controls</label>
+            </div>
+
+            <div class="axis-control">
+                <div class="slider-header"><label for="warmth">Warmth</label><span id="warmthValue">Neutral</span></div>
+                <input id="warmth" type="range" min="-5" max="5" step="1" value="0">
+            </div>
+
+            <div class="axis-control">
+                <div class="slider-header"><label for="saturation">Saturation</label><span id="saturationValue">Balanced</span></div>
+                <input id="saturation" type="range" min="-5" max="5" step="1" value="0">
+            </div>
+
+            <div class="axis-control">
+                <div class="slider-header"><label for="depth">Depth</label><span id="depthValue">Balanced</span></div>
+                <input id="depth" type="range" min="-5" max="5" step="1" value="0">
+            </div>
+        </section>
+
+        <section class="control-group group-block">
+            <div class="stack-row priority-head">
                 <label>Priority Ratio</label>
-                <span class="hint">Total must be 100</span>
+                <span class="ratio-total">100 / 100</span>
             </div>
             <div class="weights-grid">
                 <label>Style <span id="styleLabel">34%</span></label>
@@ -65,21 +74,14 @@
                 <label>Accessibility <span id="accessibilityLabel">33%</span></label>
                 <input id="accessibility" type="range" min="0" max="100" step="1" value="33">
             </div>
-            <p id="weightSummary" class="hint">Style leads, followed by Usability.</p>
         </section>
 
-        <section class="control-group">
-            <div class="stack-row">
-                <label>Color Roles</label>
-                <span class="hint">Primary Accent acts as the seed color.</span>
-            </div>
-
+        <section class="control-group group-block">
             <div id="primaryRoleContainer" class="fixed-colors primary-only"></div>
 
             <details id="moreRolesDetails" class="more-roles">
                 <summary>
                     <span>More color roles</span>
-                    <span class="summary-hint">Secondary Accent / Background / Surface / Text / Border</span>
                 </summary>
                 <div id="secondaryRolesContainer" class="fixed-colors secondary-group"></div>
             </details>
@@ -87,6 +89,7 @@
 
         <div class="actions">
             <button id="generateBtn" class="primary-button" type="button">Generate Palettes</button>
+            <a class="about-link" href="about.html">What is this? (Japanese Below)</a>
         </div>
     </aside>
 
@@ -94,7 +97,7 @@
         <section class="panel scene-panel compact">
             <div class="scene-panel-top compact">
                 <div class="scene-main">
-                    <div class="eyebrow">Selected Scene</div>
+                    <div class="eyebrow">Context</div>
                     <div class="scene-title-row">
                         <h2 id="sceneHeadline">Web Page</h2>
                         <span id="sceneBadge" class="scene-panel-badge">Readability-first</span>
@@ -104,9 +107,17 @@
                 <ul id="scenePriorities" class="scene-priority-inline"></ul>
             </div>
             <div id="activePatternNote" class="active-pattern-note in-scene-panel"></div>
+            <div class="scene-tools">
+                <button id="cvdModeBtn" class="mini-button" type="button">CVD: Normal</button>
+                <div id="cvdHint" class="cvd-hint" role="status" aria-live="polite">Click here to preview P-type / D-type color-vision simulation.</div>
+            </div>
         </section>
 
         <div id="message" class="message"></div>
+        <div class="card-nav">
+            <button id="cardPrevBtn" class="mini-button" type="button" aria-label="Previous palette">Prev</button>
+            <button id="cardNextBtn" class="mini-button" type="button" aria-label="Next palette">Next</button>
+        </div>
         <section id="results" class="results-stack"></section>
     </main>
 </div>
