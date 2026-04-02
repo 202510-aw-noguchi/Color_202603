@@ -341,6 +341,10 @@ input[type="range"]::-moz-range-thumb {
     color: var(--muted);
     font-size: 0.82rem;
 }
+.role-top > div {
+    min-width: 0;
+    flex: 1;
+}
 .mini-button { padding: 8px 10px; font-size: 0.85rem; }
 .role-row { display: grid; grid-template-columns: 64px 1fr var(--dropdown-width); gap: 8px; }
 .role-select {
@@ -356,6 +360,7 @@ input[type="range"]::-moz-range-thumb {
     padding: 0;
     min-width: 0;
     justify-content: flex-start;
+    flex-shrink: 0;
 }
 .toggle-pin .toggle-label {
     font-size: 0.78rem;
@@ -466,7 +471,8 @@ input[type="range"]::-moz-range-thumb {
     text-underline-offset: 2px;
 }
 
-.message { min-height: 24px; margin: 4px 18px 12px; color: var(--muted); }
+.message { min-height: 0; margin: 0 18px 6px; color: var(--muted); }
+.message:empty { display: none; }
 .message.error { color: #b42318; }
 .card-nav {
     display: none;
@@ -491,7 +497,7 @@ input[type="range"]::-moz-range-thumb {
 .scene-panel.compact {
     background: transparent;
     padding: 14px 18px;
-    margin-bottom: 12px;
+    margin-bottom: 8px;
     position: relative;
 }
 .scene-panel-top.compact {
@@ -633,7 +639,7 @@ input[type="range"]::-moz-range-thumb {
 .results-stack {
     display: flex;
     align-items: stretch;
-    min-height: 860px;
+    min-height: 910px;
     overflow: hidden;
     margin: 0 18px;
     padding-right: 8px;

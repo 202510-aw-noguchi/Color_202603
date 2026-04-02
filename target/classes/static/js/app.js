@@ -475,7 +475,6 @@ function renderResults(palettes) {
         <div class="palette-header">
           <div>
             <h2>${toTitleCase(palette.name)}</h2>
-            <p>${palette.name === "BASELINE" ? "" : palette.subtitle}</p>
           </div>
           <span class="grade-badge ${gradeClassName(palette.grade)}">${palette.grade}</span>
         </div>
