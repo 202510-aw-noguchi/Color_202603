@@ -16,12 +16,15 @@
             --bg: #ffffff;
         }
 
-        * { box-sizing: border-box; }
+        * {
+            box-sizing: border-box;
+        }
 
         body {
             margin: 0;
             font-family: "Noto Sans JP", "Inter", "Segoe UI", Roboto, sans-serif;
             font-weight: 400;
+            font-size: 14px;
             color: var(--body);
             background: var(--bg);
             line-height: 1.72;
@@ -44,17 +47,17 @@
 
         h1 {
             margin-bottom: 14px;
-            font-size: 1.52rem;
+            font-size: 1.42rem;
         }
 
         h2 {
             margin: 26px 0 10px;
-            font-size: 1.06rem;
+            font-size: 1rem;
         }
 
         p {
             margin: 0 0 10px;
-            font-size: 0.95rem;
+            font-size: 0.9rem;
         }
 
         ul,
@@ -63,15 +66,20 @@
             padding: 0;
         }
 
-        li { margin: 4px 0; }
+        li {
+            margin: 4px 0;
+        }
+
         ul {
             list-style: none;
             margin-left: 0;
         }
+
         ul li {
             position: relative;
             padding-left: 14px;
         }
+
         ul li::before {
             content: "-";
             position: absolute;
@@ -79,15 +87,19 @@
             color: var(--muted);
         }
 
-        .detail-list li { margin-bottom: 8px; }
+        .detail-list li {
+            margin-bottom: 8px;
+        }
 
         .detail-list .sub {
             margin-left: 0;
             color: var(--muted);
-            font-size: 0.9rem;
+            font-size: 0.84rem;
         }
 
-        .muted { color: var(--muted); }
+        .muted {
+            color: var(--muted);
+        }
 
         .divider {
             border-top: 1px solid var(--line);
@@ -101,11 +113,13 @@
             text-decoration: none;
             font-size: 0.9rem;
         }
+
         .toc {
             margin: 10px 0 20px;
             padding: 10px 12px;
             border: 1px solid var(--line);
         }
+
         .toc-title {
             margin: 0 0 6px;
             font-size: 0.85rem;
@@ -113,9 +127,11 @@
             text-transform: uppercase;
             letter-spacing: 0.05em;
         }
+
         .toc ul {
             margin: 0;
         }
+
         .toc a {
             color: var(--body);
             text-decoration: none;
@@ -126,7 +142,7 @@
 <body>
     <div class="wrap">
         <a class="back" href="index.html">&larr; Back to Palette Engine</a>
-        <h1>What is this?</h1>
+        <h1>What this tool does</h1>
 
         <p>This app helps you build a complete UI color system from a single color.<br>
             Generate structured color palettes from your chosen seed color.</p>
