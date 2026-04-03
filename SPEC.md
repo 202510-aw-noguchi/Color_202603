@@ -2,27 +2,28 @@
 
 ## Overview
 
-Generate five UI palette patterns from one seed color and user controls.
-Each palette uses six fixed role slots.
+Palette Engine generates five UI palette patterns from one seed color.
+Each palette uses six role slots and is evaluated for text readability.
 
-- Baseline keeps WCAG AA for core text pairs.
-- Other patterns relax accent constraints for expression.
+- Baseline keeps WCAG AA for core text pairs and enforces accent safety.
+- Clarity strengthens readability posture.
+- Expression / Serene / Impact prioritize expression while protecting core text pairs.
 
 ---
 
 ## Palette Patterns
 
-- Baseline: safest default for production use
-- Clarity: stronger readability and separation
-- Expression: stronger visual identity
-- Serene: softer, lower-fatigue direction
-- Impact: bolder, higher-attention direction
+- Baseline
+- Clarity
+- Expression
+- Serene
+- Impact
 
 ---
 
 ## Color Roles (6)
 
-- Primary Accent (Seed Color)
+- Primary Accent (seed color anchor)
 - Secondary Accent
 - Background
 - Surface
@@ -31,18 +32,7 @@ Each palette uses six fixed role slots.
 
 ---
 
-## Input Parameters
-
-### Seed Color
-
-- HEX input
-- Used as Primary Accent
-
-### Direction Axes
-
-- Warmth (-5 to +5)
-- Saturation (-5 to +5)
-- Depth (-5 to +5)
+## Input Controls
 
 ### Scene
 
@@ -57,157 +47,149 @@ Each palette uses six fixed role slots.
 - Light
 - Dark
 
+### Tone Controls
+
+- Warmth (-5 to +5)
+- Saturation (-5 to +5)
+- Depth (-5 to +5)
+
 ### Priority Ratio (total = 100)
 
 - Style
 - Usability
 - Accessibility
 
----
+### Fixed Color Rules (per role)
 
-## Fixed Color Rules
-
-Each role can be:
-
-- fixed
-- lightness adjustable
-- saturation adjustable
-- lightness + saturation adjustable
+- Fixed
+- Lightness only
+- Saturation only
+- Lightness + Saturation
 
 ---
 
-## Algorithm Requirements
+## Generation Logic
 
-### Step 1: Generate candidates
+### Base
 
-- Analogous
-- Complementary
-- Triadic
-- Monochrome
+- Seed is treated as the primary anchor.
+- Scene and tone controls shift hue/saturation/lightness.
+- Pattern policies apply different contrast and expression constraints.
 
-### Step 2: Apply constraints
+### Constraint and Safety
 
-- Warmth: hue shift
-- Saturation: saturation adjustment
-- Depth: lightness adjustment
+- Fixed role rules are applied after initial generation.
+- Poster/Magazine apply print-safe adjustments (including approximate TAC reduction).
+- Core text contrast is rechecked and corrected.
+- Serene text is tuned into an AA band when possible.
 
-### Step 3: Evaluate
+### Output Grade
 
-Scores:
-
-- Style
-- Usability
-- Accessibility
-
-Final score:
-weighted sum based on user ratio
-
----
-
-## Accessibility
-
-### WCAG
-
-- Baseline: AA required (>= 4.5:1)
-- Others: relaxed accent constraints
-
-### Evaluation levels
-
-- AAA (>= 7)
-- AA (>= 4.5)
-- Large AA (>= 3)
+- AAA
+- AA
+- Text AA / Accent Free
+- Large AA
 - Fail
 
 ---
 
-## UI Requirements
+## Card UI
 
-### Layout
+### Structure
 
-- Left: controls
-- Right: results (hidden until Generate)
+Each card shows:
+
+- Pattern name
+- Grade badge
+- 6 role rows (label + HEX)
+- Scene preview mock
+- Contrast metrics
+
+### Behavior
+
+- Five cards are stacked with overlap on desktop.
+- Hover/focus activates a card.
+- Narrow width uses Prev/Next navigation.
+
+### Secondary Accent Shuffle (per card)
+
+- A `Shuffle` action exists on the `Secondary Accent` row.
+- On shuffle:
+  - Primary Accent of that card is fixed.
+  - Secondary Accent is re-proposed.
+  - Background / Surface / Text / Border are recalculated from that condition.
+- Only the selected card is updated.
+- Other cards remain unchanged.
 
 ---
 
-### Scene Panel
+## Context Panel (right top)
 
 Contains:
 
-- Context label
-- Scene label + scene badge
-- Baseline line with pattern badge and note text
-- CVD simulation button
+- `Context` label
+- Scene label with scene badge
+- Scene summary line
+- Active pattern note line (`Pattern + badge + note`)
+- CVD mode button and temporary hint message
 
 ---
 
-### Pattern Display
+## Color Vision Simulation
 
-#### Structure
+Mode cycles via button:
 
-- 5 cards
-- All cards share identical structure
+- Normal
+- P-type (Protanopia approximation)
+- D-type (Deuteranopia approximation)
 
-#### Behavior
-
-- Cards overlap horizontally
-- Information is not removed by mode switching
-- Visibility is controlled mainly by overlap and active state
-- Hover/focus activates target card
-
-#### Card Content
-
-- Pattern name
-- 6 color roles
-- Scene preview
-- Contrast metrics
+Displayed role colors are transformed per selected simulation mode.
 
 ---
 
-## Design Principles
+## API Contract
 
-### Information
+### `GET /api/defaults?baseHex=#RRGGBB`
 
-- Do not remove information
-- Control visibility via structure
+Returns default fixed-color rules for all roles.
 
-### Consistency
+### `POST /api/palettes`
 
-- Keep patterns comparable with the same card structure
+Request includes:
 
-### Usability
+- baseHex
+- scene
+- backgroundMode
+- warmth / saturation / depth
+- style / usability / accessibility
+- fixedColors map
 
-- Keep listability while preserving detail
+Response returns five palettes. Each palette includes:
 
----
-
-## Current Key Decisions
-
-- Primary Accent equals seed color
-- UI accent tone uses gray
-- Scene summary is fully visible (no ellipsis)
-- Pattern explanation is shown in the context area
-- Cards keep a shared structure across all patterns
-
----
-
-## Output
-
-Return five palettes.
-Each palette includes:
-
-- 6 role colors (HEX)
-- role names
-- contrast values
-- grade (AAA / AA / Large AA / Fail)
-- pattern note text
+- name
+- description
+- roles
+- contrast summary
+- grade
+- accessibilityComment
+- notes
 
 ---
 
-## Future Enhancements
+## Layout and Style Decisions
 
-- richer mock preview variations
-- export features
-- design tool integration
+- Left: controls
+- Right: context + results (hidden until first generation)
+- Flat, modern style (no shadows, no corner radius)
+- Gray-focused UI accents
+- Desktop first-view scale adjustment for large displays
+
+---
+
+## About Page
+
+- Separate `about.html` is linked under `Generate Palettes`.
+- Includes table of contents anchors and demo video embedding.
 
 ---
 

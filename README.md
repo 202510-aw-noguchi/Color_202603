@@ -1,15 +1,39 @@
-# Palette Engine
+﻿# Palette Engine
 
-Spring Boot + Maven application for generating six-color palette suggestions with:
+Palette Engine is a Spring Boot app that generates a full six-role UI palette from one seed color.
 
-- Baseline / Clarity / Expression / Serene / Impact
-- Style / Usability / Accessibility ratio weighting
-- Warmth / Saturation / Depth controls
-- Scene selection
-- Background mode selection
-- Fixed color rules by role
-- WCAG AA-first contrast evaluation
-- Lightness-only adjustment suggestions for failed text pairs
+## Current Features
+
+- 5 pattern directions: `Baseline / Clarity / Expression / Serene / Impact`
+- 6 color roles:
+  - `Primary Accent` (seed anchor)
+  - `Secondary Accent`
+  - `Background / Surface / Text / Border`
+- Control axes:
+  - `Warmth / Saturation / Depth`
+- Priority ratio (total 100):
+  - `Style / Usability / Accessibility`
+- Scene presets:
+  - `Web Page / Mobile App / Presentation / Poster / Magazine`
+- Background mode:
+  - `Light / Dark`
+- Per-role fixed rules:
+  - `Fixed / Lightness only / Saturation only / Lightness + Saturation`
+- Accessibility grading:
+  - `AAA / AA / Text AA / Accent Free / Large AA / Fail`
+- Card-specific `Secondary Accent` shuffle
+  - Only the selected card is updated
+- CVD simulation:
+  - `Normal / P-type / D-type`
+- About page:
+  - `about.html` (table of contents + demo video)
+
+## Tech Stack
+
+- Java 17
+- Spring Boot
+- Maven
+- Static frontend (`index.html`, `about.html`, `css`, `js`)
 
 ## Run
 
@@ -28,3 +52,19 @@ http://localhost:8080
 ```bash
 mvn clean package
 ```
+
+## Main Paths
+
+- Frontend:
+  - `src/main/resources/static/index.html`
+  - `src/main/resources/static/about.html`
+  - `src/main/resources/static/css/style.css`
+  - `src/main/resources/static/js/app.js`
+- Backend:
+  - `src/main/java/com/example/colorsupport/controller/PaletteController.java`
+  - `src/main/java/com/example/colorsupport/service/PaletteService.java`
+
+## API
+
+- `GET /api/defaults?baseHex=#RRGGBB`
+- `POST /api/palettes`
