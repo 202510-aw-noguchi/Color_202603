@@ -177,7 +177,6 @@ public class PaletteService {
 
         PaletteOption option = new PaletteOption();
         option.setName(pattern);
-        option.setSubtitle(subtitle(pattern));
         option.setDescription(description(pattern));
         option.setRoles(roles);
         option.setContrast(contrast);
@@ -504,16 +503,6 @@ public class PaletteService {
                 border,
                 primaryLightness,
                 preset.baseAccentSeparation());
-    }
-
-    private String subtitle(PatternName pattern) {
-        return switch (pattern) {
-            case BASELINE -> "Balanced & versatile";
-            case CLARITY -> "High readability";
-            case EXPRESSION -> "Strong visual identity";
-            case SERENE -> "Soft & low fatigue";
-            case IMPACT -> "Bold & eye-catching";
-        };
     }
 
     private String description(PatternName pattern) {

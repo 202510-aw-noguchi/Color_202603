@@ -7,7 +7,6 @@ import java.util.Map;
 
 public class PaletteOption {
     private PatternName name;
-    private String subtitle;
     private String description;
     private Map<RoleName, String> roles = new LinkedHashMap<>();
     private ContrastSummary contrast;
@@ -21,14 +20,6 @@ public class PaletteOption {
 
     public void setName(PatternName name) {
         this.name = name;
-    }
-
-    public String getSubtitle() {
-        return subtitle;
-    }
-
-    public void setSubtitle(String subtitle) {
-        this.subtitle = subtitle;
     }
 
     public String getDescription() {

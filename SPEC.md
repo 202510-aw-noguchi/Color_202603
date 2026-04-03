@@ -1,33 +1,33 @@
-# Palette Engine Specification
+﻿# Palette Engine Specification
 
 ## Overview
 
-Generate 5 UI color palette patterns based on a seed color and user preferences.
-Each palette contains 6 roles.
+Generate five UI palette patterns from one seed color and user controls.
+Each palette uses six fixed role slots.
 
-* Baseline guarantees WCAG AA contrast
-* Other patterns relax constraints for expression
+- Baseline keeps WCAG AA for core text pairs.
+- Other patterns relax accent constraints for expression.
 
 ---
 
 ## Palette Patterns
 
-* Baseline: Standard, safest structure (WCAG AA)
-* Clarity: High readability & separation
-* Expression: Strong visual identity
-* Serene: Calm & low fatigue
-* Impact: Bold & high contrast impression
+- Baseline: safest default for production use
+- Clarity: stronger readability and separation
+- Expression: stronger visual identity
+- Serene: softer, lower-fatigue direction
+- Impact: bolder, higher-attention direction
 
 ---
 
 ## Color Roles (6)
 
-* Primary Accent (＝ Seed Color)
-* Secondary Accent
-* Background
-* Surface
-* Text
-* Border
+- Primary Accent (Seed Color)
+- Secondary Accent
+- Background
+- Surface
+- Text
+- Border
 
 ---
 
@@ -35,33 +35,33 @@ Each palette contains 6 roles.
 
 ### Seed Color
 
-* HEX input
-* Used as Primary Accent
+- HEX input
+- Used as Primary Accent
 
 ### Direction Axes
 
-* Warmth (-5 to +5)
-* Saturation (-5 to +5)
-* Depth (-5 to +5)
+- Warmth (-5 to +5)
+- Saturation (-5 to +5)
+- Depth (-5 to +5)
 
 ### Scene
 
-* Web Page
-* Mobile App
-* Presentation
-* Poster
-* Magazine
+- Web Page
+- Mobile App
+- Presentation
+- Poster
+- Magazine
 
 ### Background Mode
 
-* Light
-* Dark
+- Light
+- Dark
 
 ### Priority Ratio (total = 100)
 
-* Style
-* Usability
-* Accessibility
+- Style
+- Usability
+- Accessibility
 
 ---
 
@@ -69,10 +69,10 @@ Each palette contains 6 roles.
 
 Each role can be:
 
-* fixed
-* lightness adjustable
-* saturation adjustable
-* lightness + saturation adjustable
+- fixed
+- lightness adjustable
+- saturation adjustable
+- lightness + saturation adjustable
 
 ---
 
@@ -80,26 +80,26 @@ Each role can be:
 
 ### Step 1: Generate candidates
 
-* Analogous
-* Complementary
-* Triadic
-* Monochrome
+- Analogous
+- Complementary
+- Triadic
+- Monochrome
 
 ### Step 2: Apply constraints
 
-* Warmth → hue shift
-* Saturation → saturation adjustment
-* Depth → lightness adjustment
+- Warmth: hue shift
+- Saturation: saturation adjustment
+- Depth: lightness adjustment
 
 ### Step 3: Evaluate
 
 Scores:
 
-* Style
-* Usability
-* Accessibility
+- Style
+- Usability
+- Accessibility
 
-Final Score:
+Final score:
 weighted sum based on user ratio
 
 ---
@@ -108,15 +108,15 @@ weighted sum based on user ratio
 
 ### WCAG
 
-* Baseline: AA required (>= 4.5:1)
-* Others: relaxed constraints
+- Baseline: AA required (>= 4.5:1)
+- Others: relaxed accent constraints
 
 ### Evaluation levels
 
-* AAA (>=7)
-* AA (>=4.5)
-* Large AA (>=3)
-* Fail
+- AAA (>= 7)
+- AA (>= 4.5)
+- Large AA (>= 3)
+- Fail
 
 ---
 
@@ -124,8 +124,8 @@ weighted sum based on user ratio
 
 ### Layout
 
-* Left: controls
-* Right: results (hidden until Generate)
+- Left: controls
+- Right: results (hidden until Generate)
 
 ---
 
@@ -133,11 +133,10 @@ weighted sum based on user ratio
 
 Contains:
 
-* Scene name
-* Badge
-* Full description (no truncation)
-* Priority tags
-* Active pattern description (integrated inside panel)
+- Context label
+- Scene label + scene badge
+- Baseline line with pattern badge and note text
+- CVD simulation button
 
 ---
 
@@ -145,23 +144,22 @@ Contains:
 
 #### Structure
 
-* 5 cards
-* All cards share identical structure
+- 5 cards
+- All cards share identical structure
 
 #### Behavior
 
-* Cards overlap horizontally
-* Information is NOT reduced
-* Only hidden by overlap (clipped)
-* Hover expands target card
+- Cards overlap horizontally
+- Information is not removed by mode switching
+- Visibility is controlled mainly by overlap and active state
+- Hover/focus activates target card
 
 #### Card Content
 
-* Pattern name
-* Subtitle
-* 6 color roles
-* Preview
-* Contrast metrics
+- Pattern name
+- 6 color roles
+- Scene preview
+- Contrast metrics
 
 ---
 
@@ -169,49 +167,47 @@ Contains:
 
 ### Information
 
-* Do not remove information
-* Control visibility via layout only
+- Do not remove information
+- Control visibility via structure
 
 ### Consistency
 
-* No alternate compact UI
-* Same structure for all cards
+- Keep patterns comparable with the same card structure
 
 ### Usability
 
-* Maintain listability even when overlapped
+- Keep listability while preserving detail
 
 ---
 
 ## Current Key Decisions
 
-* Primary Accent = Seed Color
-* UI accent color = gray (not blue)
-* Scene description is fully visible (no ellipsis)
-* Pattern description is inside Scene panel
-* Cards = identical information, partially hidden by overlap
+- Primary Accent equals seed color
+- UI accent tone uses gray
+- Scene summary is fully visible (no ellipsis)
+- Pattern explanation is shown in the context area
+- Cards keep a shared structure across all patterns
 
 ---
 
 ## Output
 
-Return 5 palettes:
+Return five palettes.
+Each palette includes:
 
-Each includes:
-
-* 6 colors (HEX)
-* role names
-* contrast values
-* grade (AA / AAA / Fail)
-* explanation
+- 6 role colors (HEX)
+- role names
+- contrast values
+- grade (AAA / AA / Large AA / Fail)
+- pattern note text
 
 ---
 
 ## Future Enhancements
 
-* Mock UI preview expansion
-* Export functionality
-* Design tool integration
+- richer mock preview variations
+- export features
+- design tool integration
 
 ---
 

@@ -32,6 +32,14 @@ const RULE_LABELS = {
   LIGHTNESS_SATURATION: "Lightness + Saturation"
 };
 
+const PATTERN_BADGES = {
+  BASELINE: "Balanced & versatile",
+  CLARITY: "High readability",
+  EXPRESSION: "Strong visual identity",
+  SERENE: "Soft & low fatigue",
+  IMPACT: "Bold & eye-catching"
+};
+
 const SCENE_META = {
   WEB: {
     label: "Web Page",
@@ -489,7 +497,8 @@ function updateActivePatternNote() {
     elements.activePatternNote.innerHTML = "";
     return;
   }
-  elements.activePatternNote.innerHTML = `${toTitleCase(palette.name)} <span class="context-badge">${palette.subtitle}</span>：${patternNoteSummary(palette)}`;
+  const badge = PATTERN_BADGES[palette.name] || "";
+  elements.activePatternNote.innerHTML = `${toTitleCase(palette.name)} <span class="context-badge">${badge}</span>：${patternNoteSummary(palette)}`;
 }
 
 function updateStackLayout() {
