@@ -74,7 +74,7 @@ function apiUrl(path) {
   return `/api${path}`;
 }
 
-const state = { fixedColors: {}, activePatternIndex: 0, palettes: [], cvdMode: "NORMAL", cvdHintTimer: null };
+const state = { fixedColors: {}, activePatternIndex: 0, palettes: [], cvdMode: "NORMAL", cvdHintTimer: null, secondaryShuffleLocks: new Set() };
 
 const elements = {
   scene: document.getElementById("scene"),
@@ -288,6 +288,72 @@ function rgbToHex(rgb) {
   return `#${clampByte(rgb.r).toString(16).padStart(2, "0")}${clampByte(rgb.g).toString(16).padStart(2, "0")}${clampByte(rgb.b).toString(16).padStart(2, "0")}`;
 }
 
+function rgbToHsl(rgb) {
+  const r = clampByte(rgb.r) / 255;
+  const g = clampByte(rgb.g) / 255;
+  const b = clampByte(rgb.b) / 255;
+  const max = Math.max(r, g, b);
+  const min = Math.min(r, g, b);
+  const d = max - min;
+  let h = 0;
+  const l = (max + min) / 2;
+  let s = 0;
+
+  if (d !== 0) {
+    s = d / (1 - Math.abs(2 * l - 1));
+    switch (max) {
+      case r:
+        h = 60 * (((g - b) / d) % 6);
+        break;
+      case g:
+        h = 60 * ((b - r) / d + 2);
+        break;
+      default:
+        h = 60 * ((r - g) / d + 4);
+        break;
+    }
+  }
+
+  if (h < 0) h += 360;
+  return { h, s, l };
+}
+
+function hslToRgb(hsl) {
+  const h = ((hsl.h % 360) + 360) % 360;
+  const s = Math.max(0, Math.min(1, hsl.s));
+  const l = Math.max(0, Math.min(1, hsl.l));
+  const c = (1 - Math.abs(2 * l - 1)) * s;
+  const x = c * (1 - Math.abs((h / 60) % 2 - 1));
+  const m = l - c / 2;
+
+  let r1 = 0;
+  let g1 = 0;
+  let b1 = 0;
+
+  if (h < 60) [r1, g1, b1] = [c, x, 0];
+  else if (h < 120) [r1, g1, b1] = [x, c, 0];
+  else if (h < 180) [r1, g1, b1] = [0, c, x];
+  else if (h < 240) [r1, g1, b1] = [0, x, c];
+  else if (h < 300) [r1, g1, b1] = [x, 0, c];
+  else [r1, g1, b1] = [c, 0, x];
+
+  return {
+    r: (r1 + m) * 255,
+    g: (g1 + m) * 255,
+    b: (b1 + m) * 255
+  };
+}
+
+function randomSecondaryAccentHex(primaryHex) {
+  const baseHsl = rgbToHsl(hexToRgb(primaryHex));
+  const direction = Math.random() < 0.5 ? -1 : 1;
+  const offset = 55 + Math.floor(Math.random() * 95);
+  const h = (baseHsl.h + direction * offset + 360) % 360;
+  const s = Math.max(0.42, Math.min(0.82, baseHsl.s + (Math.random() * 0.28 - 0.08)));
+  const l = Math.max(0.35, Math.min(0.66, baseHsl.l + (Math.random() * 0.22 - 0.08)));
+  return rgbToHex(hslToRgb({ h, s, l }));
+}
+
 function simulateCvdHex(hex, mode) {
   if (mode === "NORMAL") return hex;
 
@@ -467,7 +533,10 @@ function renderResults(palettes) {
 
     const roleRows = ROLE_ORDER.map((role) => {
       const hex = displayRoles[role];
-      return `<div class="color-row-display" style="background:${hex};color:${getReadableTextColor(hex)};"><span>${ROLE_LABELS[role]}</span><span>${hex}</span></div>`;
+      const label = role === "SECONDARY_ACCENT"
+        ? `<span class="role-label-with-action"><span>${ROLE_LABELS[role]}</span><button type="button" class="secondary-shuffle-btn" data-action="shuffle-secondary" data-index="${index}">Shuffle</button></span>`
+        : `<span>${ROLE_LABELS[role]}</span>`;
+      return `<div class="color-row-display" style="background:${hex};color:${getReadableTextColor(hex)};">${label}<span>${hex}</span></div>`;
     }).join("");
 
     card.innerHTML = `
@@ -506,6 +575,13 @@ function renderResults(palettes) {
     card.addEventListener("mouseenter", activate);
     card.addEventListener("focus", activate);
     card.addEventListener("click", activate);
+    const shuffleBtn = card.querySelector('[data-action="shuffle-secondary"]');
+    if (shuffleBtn) {
+      shuffleBtn.addEventListener("click", (event) => {
+        event.stopPropagation();
+        shuffleSecondaryForCard(index);
+      });
+    }
     elements.results.appendChild(card);
   });
 
@@ -592,6 +668,53 @@ function bindEvents() {
     elements.cvdModeBtn.addEventListener("click", cycleCvdMode);
   }
   window.addEventListener("resize", updateStackLayout);
+}
+
+async function shuffleSecondaryForCard(index) {
+  const palette = state.palettes[index];
+  if (!palette || state.secondaryShuffleLocks.has(index)) return;
+
+  state.secondaryShuffleLocks.add(index);
+  try {
+    const request = collectRequest();
+    const primaryHex = (palette.roles && palette.roles.PRIMARY_ACCENT) || request.baseHex;
+    const secondaryHex = randomSecondaryAccentHex(primaryHex);
+    const fixedColors = JSON.parse(JSON.stringify(request.fixedColors || {}));
+
+    fixedColors.PRIMARY_ACCENT = {
+      ...(fixedColors.PRIMARY_ACCENT || {}),
+      enabled: true,
+      hex: primaryHex,
+      rule: "FIXED"
+    };
+    fixedColors.SECONDARY_ACCENT = {
+      ...(fixedColors.SECONDARY_ACCENT || {}),
+      enabled: true,
+      hex: secondaryHex,
+      rule: "FIXED"
+    };
+    request.fixedColors = fixedColors;
+
+    const response = await fetch(apiUrl("/palettes"), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(request)
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.message || "Failed to shuffle Secondary Accent.");
+
+    const updated = (data.palettes || []).find((item) => item.name === palette.name);
+    if (!updated) throw new Error("Updated palette was not returned.");
+
+    state.palettes[index] = updated;
+    state.activePatternIndex = index;
+    renderResults(state.palettes);
+    setMessage(`${toTitleCase(palette.name)} Secondary Accent updated.`);
+  } catch (error) {
+    setMessage(error.message || "Failed to shuffle Secondary Accent.", true);
+  } finally {
+    state.secondaryShuffleLocks.delete(index);
+  }
 }
 
 async function init() {

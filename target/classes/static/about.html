@@ -91,7 +91,7 @@
             margin-bottom: 8px;
         }
 
-        .detail-list .sub {
+        .sub {
             margin-left: 0;
             color: var(--muted);
             font-size: 0.84rem;
@@ -136,6 +136,37 @@
             color: var(--body);
             text-decoration: none;
         }
+
+        .about-demo {
+            margin: 10px 0 14px;
+            border: 1px solid var(--line);
+            background: #fff;
+            overflow: hidden;
+            line-height: 0;
+            position: relative;
+        }
+
+        .about-demo::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 1px;
+            background: #fff;
+            pointer-events: none;
+        }
+
+        .about-demo video {
+            display: block;
+            width: 100%;
+            height: auto;
+            vertical-align: top;
+            background: #fff;
+            border: 0;
+            outline: 0;
+            transform: translateZ(0);
+        }
     </style>
 </head>
 
@@ -169,6 +200,11 @@
         <p>This app translates those design decisions into a system.</p>
 
         <h2 id="what-you-can-do">What you can do</h2>
+        <div class="about-demo">
+            <video controls preload="metadata" playsinline>
+                <source src="images/Demo.mp4" type="video/mp4">
+            </video>
+        </div>
         <ul class="detail-list">
             <li>
                 Generate 5 distinct palette directions
@@ -186,22 +222,39 @@
                 Control priority
                 <div class="sub">Style / Usability / Accessibility</div>
             </li>
+            <li>
+                Shuffle the Secondary Accent while keeping the Primary fixed to explore palette variations.
+            </li>
         </ul>
 
         <h2 id="built-for-real-ui">Built for real UI</h2>
         <p>Each palette is designed with real usage contexts in mind, taking into account the specific requirements of
             each scenario.</p>
         <ul>
-            <li>Web Page : Designed for readability across long content. Optimized for text contrast, link visibility,
-                and balanced emphasis.</li>
-            <li>Mobile App : Designed for compact screens and touch interaction. Optimized for clear hierarchy,
-                component separation, and quick recognition.</li>
-            <li>Presentation : Designed for projected and slide-based viewing. Optimized for strong contrast, legibility
-                at distance, and visual clarity.</li>
-            <li>Poster : Designed for visual impact and quick attention. Optimized for bold contrast and strong focal
-                points, while also considering print-friendly color balance to avoid excessive saturation.</li>
-            <li>Magazine : Designed for editorial layouts and extended reading. Optimized for tonal balance and reduced
-                visual fatigue, with adjustments to maintain stable and natural color reproduction in print.</li>
+            <li>Web Page
+                <div class="sub">Designed for readability across long content. Optimized for text contrast, link
+                    visibility,
+                    and balanced emphasis.</div>
+            </li>
+            <li>Mobile App
+                <div class="sub">Designed for compact screens and touch interaction. Optimized for clear hierarchy,
+                    component separation, and quick recognition.</div>
+            </li>
+            <li>Presentation
+                <div class="sub">Designed for projected and slide-based viewing. Optimized for strong contrast,
+                    legibility
+                    at distance, and visual clarity.</div>
+            </li>
+            <li>Poster
+                <div class="sub">Designed for visual impact and quick attention. Optimized for bold contrast and strong
+                    focal
+                    points, while also considering print-friendly color balance to avoid excessive saturation.</div>
+            </li>
+            <li>Magazine
+                <div class="sub">Designed for editorial layouts and extended reading. Optimized for tonal balance and
+                    reduced
+                    visual fatigue, with adjustments to maintain stable and natural color reproduction in print.</div>
+            </li>
         </ul>
 
         <h2 id="accessibility-approach">Accessibility approach</h2>

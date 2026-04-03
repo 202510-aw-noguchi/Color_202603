@@ -768,6 +768,26 @@ input[type="range"]::-moz-range-thumb {
     font-size: 0.82rem;
     font-weight: 600;
 }
+.role-label-with-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+.secondary-shuffle-btn {
+    border: none;
+    background: transparent;
+    color: currentColor;
+    font-size: 0.72rem;
+    font-weight: 500;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    cursor: pointer;
+    padding: 0;
+    opacity: 0.88;
+}
+.secondary-shuffle-btn:hover {
+    opacity: 1;
+}
 
 .preview-area { padding: 12px; }
 .preview-shell {
