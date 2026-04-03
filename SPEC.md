@@ -1,4 +1,4 @@
-# Color Support App Specification
+# Palette Engine Specification
 
 ## Overview
 

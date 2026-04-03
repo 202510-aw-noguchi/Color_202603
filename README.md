@@ -1,4 +1,4 @@
-# Color Support App
+# Palette Engine
 
 Spring Boot + Maven application for generating six-color palette suggestions with:
 
