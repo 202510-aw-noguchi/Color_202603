@@ -629,7 +629,7 @@ input[type="range"]::-moz-range-thumb {
     margin-bottom: 4px;
 }
 .active-pattern-note.in-scene-panel {
-    margin-top: 6px;
+    margin-top: 1em;
     padding-top: 0;
     border-top: none;
 }
