@@ -25,13 +25,6 @@ const ROLE_DESCRIPTIONS = {
   BORDER: "Lines, dividers, and subtle UI boundaries."
 };
 
-const RULE_LABELS = {
-  FIXED: "Fixed",
-  LIGHTNESS: "Lightness only",
-  SATURATION: "Saturation only",
-  LIGHTNESS_SATURATION: "Lightness + Saturation"
-};
-
 const PATTERN_BADGES = {
   BASELINE: "Balanced & versatile",
   CLARITY: "High readability",
@@ -217,9 +210,6 @@ function roleCardMarkup(role, config) {
       <div class="role-row">
         <input type="color" data-field="hexColor" value="${(config && config.hex) || "#000000"}">
         <input type="text" data-field="hexText" value="${(config && config.hex) || "#000000"}" maxlength="7">
-        <select data-field="rule" class="inline-select role-select">
-          ${Object.entries(RULE_LABELS).map(([value, label]) => `<option value="${value}" ${config && config.rule === value ? "selected" : ""}>${label}</option>`).join("")}
-        </select>
       </div>
     </div>
   `;
@@ -239,9 +229,6 @@ function attachRoleCardEvents(container, role, config) {
     config.hex = normalized;
     container.querySelector('[data-field="hexColor"]').value = normalized;
     event.target.value = normalized;
-  });
-  container.querySelector('[data-field="rule"]').addEventListener("change", (event) => {
-    config.rule = event.target.value;
   });
 }
 

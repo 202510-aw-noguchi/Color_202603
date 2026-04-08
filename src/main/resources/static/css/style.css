@@ -346,10 +346,7 @@ input[type="range"]::-moz-range-thumb {
     flex: 1;
 }
 .mini-button { padding: 8px 10px; font-size: 0.85rem; }
-.role-row { display: grid; grid-template-columns: 64px 1fr var(--dropdown-width); gap: 8px; }
-.role-select {
-    justify-self: end;
-}
+.role-row { display: grid; grid-template-columns: 64px 1fr; gap: 8px; }
 
 .more-roles {
     margin-top: 10px;
@@ -402,14 +399,6 @@ input[type="range"]::-moz-range-thumb {
 .secondary-group input[data-field="hexText"] {
     color: #9ca3af;
     font-size: 0.78rem !important;
-}
-.secondary-group .role-select {
-    color: #9ca3af;
-    font-size: 0.78rem !important;
-    border-bottom-color: #d1d5db;
-    background-image:
-        linear-gradient(45deg, transparent 50%, #9ca3af 50%),
-        linear-gradient(135deg, #9ca3af 50%, transparent 50%);
 }
 .actions {
     margin-top: 14px;
@@ -1091,32 +1080,11 @@ label,
         grid-template-columns: 56px 1fr;
         align-items: center;
     }
-    .role-row select {
-        grid-column: 1 / -1;
-        width: 100%;
-    }
-    .role-select {
-        justify-self: stretch;
-    }
     .primary-only .role-row {
-        grid-template-columns: 56px 1fr var(--dropdown-width);
-    }
-    .primary-only .role-row select {
-        grid-column: auto;
-        width: var(--dropdown-width);
-    }
-    .primary-only .role-select {
-        justify-self: end;
+        grid-template-columns: 56px 1fr;
     }
     .secondary-group .role-row {
-        grid-template-columns: 56px 1fr var(--dropdown-width);
-    }
-    .secondary-group .role-row select {
-        grid-column: auto;
-        width: var(--dropdown-width);
-    }
-    .secondary-group .role-select {
-        justify-self: end;
+        grid-template-columns: 56px 1fr;
     }
     .scene-panel-top.compact { grid-template-columns: 1fr; }
     .scene-panel-side { justify-content: flex-start; max-width: none; }
