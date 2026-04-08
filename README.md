@@ -77,6 +77,11 @@ When frontend and API are on different domains, set a global variable before loa
 </script>
 ```
 
+Both of the following values are accepted:
+
+- `https://<your-api>.onrender.com`
+- `https://<your-api>.onrender.com/api`
+
 ## Build
 
 ```bash
