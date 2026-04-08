@@ -562,7 +562,6 @@ input[type="range"]::-moz-range-thumb {
     gap: 10px;
     flex-wrap: wrap;
     margin: 4px 0 6px;
-    display: none;
 }
 .scene-panel h2 { margin: 0; font-size: 1.15rem; }
 .scene-summary.compact {
@@ -606,7 +605,6 @@ input[type="range"]::-moz-range-thumb {
     justify-content: flex-end;
     align-self: start;
     max-width: 260px;
-    display: none;
 }
 .scene-priority-inline li {
     padding: 4px 8px;
