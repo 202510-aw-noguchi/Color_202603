@@ -61,6 +61,16 @@ For multiple origins, use comma-separated values:
 APP_CORS_ALLOWED_ORIGINS=https://<your-frontend>.onrender.com,https://<custom-domain>
 ```
 
+## Frontend API base URL (optional)
+
+When frontend and API are on different domains, set a global variable before loading `app.js`:
+
+```html
+<script>
+  window.__API_BASE_URL__ = "https://<your-api>.onrender.com";
+</script>
+```
+
 ## Build
 
 ```bash

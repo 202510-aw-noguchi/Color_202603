@@ -75,7 +75,17 @@ const SCENE_META = {
 
 const CVD_MODES = ["NORMAL", "PROTAN", "DEUTAN"];
 
+function configuredApiBaseUrl() {
+  const configured = window.__API_BASE_URL__;
+  if (typeof configured !== "string") return "";
+  return configured.trim().replace(/\/+$/, "");
+}
+
 function apiUrl(path) {
+  const configuredBase = configuredApiBaseUrl();
+  if (configuredBase) {
+    return `${configuredBase}/api${path}`;
+  }
   if (window.location.protocol === "file:") {
     return `http://localhost:8080/api${path}`;
   }
