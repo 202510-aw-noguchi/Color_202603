@@ -47,6 +47,20 @@ Open:
 http://localhost:8080
 ```
 
+## CORS (Render deployment)
+
+Set allowed origins via env var:
+
+```text
+APP_CORS_ALLOWED_ORIGINS=https://<your-frontend>.onrender.com
+```
+
+For multiple origins, use comma-separated values:
+
+```text
+APP_CORS_ALLOWED_ORIGINS=https://<your-frontend>.onrender.com,https://<custom-domain>
+```
+
 ## Build
 
 ```bash
