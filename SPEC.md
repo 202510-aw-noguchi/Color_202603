@@ -59,12 +59,10 @@ Each palette uses six role slots and is evaluated for text readability.
 - Usability
 - Accessibility
 
-### Fixed Color Rules (per role)
+### Primary Accent Input
 
-- Fixed
-- Lightness only
-- Saturation only
-- Lightness + Saturation
+- Primary Accent is manually editable (color picker + HEX).
+- Other roles are generated automatically by the palette engine.
 
 ---
 
@@ -78,7 +76,7 @@ Each palette uses six role slots and is evaluated for text readability.
 
 ### Constraint and Safety
 
-- Fixed role rules are applied after initial generation.
+- Primary Accent is treated as fixed seed input.
 - Poster/Magazine apply print-safe adjustments (including approximate TAC reduction).
 - Core text contrast is rechecked and corrected.
 - Serene text is tuned into an AA band when possible.
@@ -127,9 +125,8 @@ Each card shows:
 
 Contains:
 
-- `Context` label
-- Scene label with scene badge
-- Scene summary line
+- Scene label
+- Scene summary line (`badge + summary`)
 - Active pattern note line (`Pattern + badge + note`)
 - CVD mode button and temporary hint message
 
@@ -182,7 +179,7 @@ Response returns five palettes. Each palette includes:
 - Right: context + results (hidden until first generation)
 - Flat, modern style (no shadows, no corner radius)
 - Gray-focused UI accents
-- Desktop first-view scale adjustment for large displays
+- Responsive desktop/mobile layout tuning
 
 ---
 

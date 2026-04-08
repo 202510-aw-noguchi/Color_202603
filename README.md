@@ -17,8 +17,8 @@ Palette Engine is a Spring Boot app that generates a full six-role UI palette fr
   - `Web Page / Mobile App / Presentation / Poster / Magazine`
 - Background mode:
   - `Light / Dark`
-- Per-role fixed rules:
-  - `Fixed / Lightness only / Saturation only / Lightness + Saturation`
+- Manual color input:
+  - `Primary Accent` only (`color picker + HEX`)
 - Accessibility grading:
   - `AAA / AA / Text AA / Accent Free / Large AA / Fail`
 - Card-specific `Secondary Accent` shuffle
