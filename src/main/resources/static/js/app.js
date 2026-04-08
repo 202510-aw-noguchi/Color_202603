@@ -206,7 +206,6 @@ async function loadDefaults(seedHex) {
 }
 
 function roleCardMarkup(role, config) {
-  const enabled = !!(config && config.enabled);
   return `
     <div class="fixed-color-card">
       <div class="role-top">
@@ -214,10 +213,6 @@ function roleCardMarkup(role, config) {
           <h3>${ROLE_LABELS[role]}</h3>
           ${ROLE_DESCRIPTIONS[role] ? `<p>${ROLE_DESCRIPTIONS[role]}</p>` : ""}
         </div>
-        <button class="toggle-pin ${enabled ? "is-on" : ""}" type="button" data-action="toggle" aria-pressed="${enabled ? "true" : "false"}">
-          <span class="toggle-label">Pinned</span>
-          <span class="toggle-switch" aria-hidden="true"></span>
-        </button>
       </div>
       <div class="role-row">
         <input type="color" data-field="hexColor" value="${(config && config.hex) || "#000000"}">
@@ -231,10 +226,6 @@ function roleCardMarkup(role, config) {
 }
 
 function attachRoleCardEvents(container, role, config) {
-  container.querySelector('[data-action="toggle"]').addEventListener("click", () => {
-    config.enabled = !config.enabled;
-    renderFixedColors();
-  });
   container.querySelector('[data-field="hexColor"]').addEventListener("input", (event) => {
     config.hex = event.target.value.toLowerCase();
     container.querySelector('[data-field="hexText"]').value = config.hex;

@@ -350,50 +350,6 @@ input[type="range"]::-moz-range-thumb {
 .role-select {
     justify-self: end;
 }
-.toggle-pin {
-    border: none;
-    background: transparent;
-    color: #4b5563;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 0;
-    min-width: 0;
-    justify-content: flex-start;
-    flex-shrink: 0;
-}
-.toggle-pin .toggle-label {
-    font-size: 0.78rem;
-    line-height: 1;
-}
-.toggle-pin .toggle-switch {
-    width: 42px;
-    height: 24px;
-    background: #d1d5db;
-    position: relative;
-    border-radius: 999px !important;
-    transition: background-color 0.2s ease;
-}
-.toggle-pin .toggle-switch::after {
-    content: "";
-    position: absolute;
-    top: 2px;
-    left: 2px;
-    width: 20px;
-    height: 20px;
-    background: #ffffff;
-    border-radius: 999px !important;
-    transition: transform 0.2s ease;
-}
-.toggle-pin.is-on {
-    color: #111827;
-}
-.toggle-pin.is-on .toggle-switch {
-    background: #6b7280;
-}
-.toggle-pin.is-on .toggle-switch::after {
-    transform: translateX(18px);
-}
 
 .more-roles {
     margin-top: 10px;
