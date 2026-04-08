@@ -149,7 +149,7 @@ Displayed role colors are transformed per selected simulation mode.
 
 ## API Contract
 
-### `GET /api/defaults?baseHex=#RRGGBB`
+### `GET /api/defaults?baseHex=%23RRGGBB` (URL-encoded `#`)
 
 Returns default fixed-color rules for all roles.
 

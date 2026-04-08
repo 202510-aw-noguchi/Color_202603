@@ -80,5 +80,5 @@ mvn clean package
 
 ## API
 
-- `GET /api/defaults?baseHex=#RRGGBB`
+- `GET /api/defaults?baseHex=%23RRGGBB` (URL-encoded `#`)
 - `POST /api/palettes`
