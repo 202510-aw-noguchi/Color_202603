@@ -19,9 +19,22 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(Map.of("message", "Validation failed", "fields", fields));
     }
 
-    @ExceptionHandler({IllegalArgumentException.class, ConstraintViolationException.class})
-    public ResponseEntity<Map<String, Object>> handleIllegal(RuntimeException ex) {
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<Map<String, Object>> handleIllegal(IllegalArgumentException ex) {
         return ResponseEntity.badRequest().body(Map.of("message", ex.getMessage()));
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<Map<String, Object>> handleConstraintViolation(ConstraintViolationException ex) {
+        Map<String, String> fields = new HashMap<>();
+        ex.getConstraintViolations().forEach(v -> {
+            String path = v.getPropertyPath() == null ? "" : v.getPropertyPath().toString();
+            String field = path.contains(".") ? path.substring(path.lastIndexOf('.') + 1) : path;
+            fields.put(field, v.getMessage());
+        });
+        return ResponseEntity.badRequest().body(Map.of(
+                "message", "Invalid request parameters.",
+                "fields", fields));
     }
 
     @ExceptionHandler(Exception.class)
