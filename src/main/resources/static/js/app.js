@@ -123,7 +123,6 @@ const elements = {
   cardNextBtn: document.getElementById("cardNextBtn"),
   activePatternNote: document.getElementById("activePatternNote"),
   generateBtn: document.getElementById("generateBtn"),
-  shuffleSeedBtn: document.getElementById("shuffleSeedBtn"),
   cvdModeBtn: document.getElementById("cvdModeBtn"),
   cvdHint: document.getElementById("cvdHint")
 };
@@ -661,15 +660,6 @@ async function generatePalettes() {
   }
 }
 
-function randomizeSeedColor() {
-  const current = normalizeHex(state.fixedColors.PRIMARY_ACCENT?.hex) || "#4f46e5";
-  const num = parseInt(current.slice(1), 16);
-  const rotated = (num + 0x224466) % 0xffffff;
-  const next = `#${rotated.toString(16).padStart(6, "0")}`;
-  state.fixedColors.PRIMARY_ACCENT.hex = next;
-  renderFixedColors();
-}
-
 function bindEvents() {
   elements.scene.addEventListener("change", handleSceneChange);
   elements.backgroundMode.addEventListener("change", updateScenePanel);
@@ -680,7 +670,6 @@ function bindEvents() {
   elements.usability.addEventListener("input", (e) => rebalanceWeights("usability", e.target.value));
   elements.accessibility.addEventListener("input", (e) => rebalanceWeights("accessibility", e.target.value));
   elements.generateBtn.addEventListener("click", generatePalettes);
-  elements.shuffleSeedBtn.addEventListener("click", randomizeSeedColor);
   if (elements.cardPrevBtn) elements.cardPrevBtn.addEventListener("click", () => shiftActiveCard(-1));
   if (elements.cardNextBtn) elements.cardNextBtn.addEventListener("click", () => shiftActiveCard(1));
   if (elements.cvdModeBtn) {
