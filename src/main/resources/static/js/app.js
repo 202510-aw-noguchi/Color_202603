@@ -44,32 +44,27 @@ const SCENE_META = {
   WEB: {
     label: "Web Page",
     badge: "Readability-first",
-    summary: "Optimized for sustained reading, stable hierarchy, and calm emphasis.",
-    priorities: ["Long-form readability", "Stable layering", "Balanced accents"]
+    summary: "Optimized for sustained reading, stable hierarchy, and calm emphasis."
   },
   MOBILE: {
     label: "Mobile App",
     badge: "Dense UI ready",
-    summary: "Designed for compact screens with clear tap emphasis and strong separation.",
-    priorities: ["Small-text clarity", "Clear tap emphasis", "Sharper separation"]
+    summary: "Designed for compact screens with clear tap emphasis and strong separation."
   },
   PRESENTATION: {
     label: "Presentation",
     badge: "Projection-safe",
-    summary: "Tuned for distance viewing with stronger grouping and high legibility.",
-    priorities: ["Distance readability", "Clear grouping", "Stronger emphasis"]
+    summary: "Tuned for distance viewing with stronger grouping and high legibility."
   },
   POSTER: {
     label: "Poster",
     badge: "High impact",
-    summary: "Built for immediate visual impact with bold accents and clear focal points.",
-    priorities: ["Immediate impact", "Hero emphasis", "Bold accents"]
+    summary: "Built for immediate visual impact with bold accents and clear focal points."
   },
   MAGAZINE: {
     label: "Magazine",
     badge: "Editorial balance",
-    summary: "Balanced for editorial rhythm, comfortable reading, and tasteful accents.",
-    priorities: ["Comfortable reading", "Gentle transitions", "Tasteful accents"]
+    summary: "Balanced for editorial rhythm, comfortable reading, and tasteful accents."
   }
 };
 
@@ -109,7 +104,6 @@ const elements = {
   styleLabel: document.getElementById("styleLabel"),
   usabilityLabel: document.getElementById("usabilityLabel"),
   accessibilityLabel: document.getElementById("accessibilityLabel"),
-  weightSummary: document.getElementById("weightSummary"),
   primaryRoleContainer: document.getElementById("primaryRoleContainer"),
   secondaryRolesContainer: document.getElementById("secondaryRolesContainer"),
   sceneHeadline: document.getElementById("sceneHeadline"),
