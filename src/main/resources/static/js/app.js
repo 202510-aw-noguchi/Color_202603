@@ -473,7 +473,7 @@ function formatRatio(value) {
 function updateScenePanel() {
   const meta = SCENE_META[elements.scene.value];
   elements.sceneHeadline.textContent = meta.label;
-  elements.sceneSummary.textContent = meta.summary;
+  elements.sceneSummary.innerHTML = `<span class="context-badge">${meta.badge}</span>${meta.summary}`;
 }
 
 function refreshResultsForCurrentScene() {
