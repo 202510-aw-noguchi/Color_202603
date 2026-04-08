@@ -84,7 +84,8 @@ function configuredApiBaseUrl() {
 function apiUrl(path) {
   const configuredBase = configuredApiBaseUrl();
   if (configuredBase) {
-    return `${configuredBase}/api${path}`;
+    const base = /\/api$/i.test(configuredBase) ? configuredBase : `${configuredBase}/api`;
+    return `${base}${path}`;
   }
   if (window.location.protocol === "file:") {
     return `http://localhost:8080/api${path}`;
