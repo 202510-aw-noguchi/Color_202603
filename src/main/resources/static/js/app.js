@@ -113,9 +113,7 @@ const elements = {
   primaryRoleContainer: document.getElementById("primaryRoleContainer"),
   secondaryRolesContainer: document.getElementById("secondaryRolesContainer"),
   sceneHeadline: document.getElementById("sceneHeadline"),
-  sceneBadge: document.getElementById("sceneBadge"),
   sceneSummary: document.getElementById("sceneSummary"),
-  scenePriorities: document.getElementById("scenePriorities"),
   results: document.getElementById("results"),
   resultsColumn: document.getElementById("resultsColumn"),
   message: document.getElementById("message"),
@@ -475,9 +473,7 @@ function formatRatio(value) {
 function updateScenePanel() {
   const meta = SCENE_META[elements.scene.value];
   elements.sceneHeadline.textContent = meta.label;
-  elements.sceneBadge.textContent = meta.badge;
-  elements.sceneSummary.innerHTML = `${meta.label} <span class="context-badge">${meta.badge}</span>：${meta.summary}`;
-  elements.scenePriorities.innerHTML = meta.priorities.map((item) => `<li>${item}</li>`).join("");
+  elements.sceneSummary.textContent = meta.summary;
 }
 
 function refreshResultsForCurrentScene() {
@@ -735,7 +731,7 @@ async function shuffleSecondaryForCard(index) {
     state.palettes[index] = updated;
     state.activePatternIndex = index;
     renderResults(state.palettes);
-    setMessage(`${toTitleCase(palette.name)} Secondary Accent updated.`);
+    setMessage("");
   } catch (error) {
     setMessage(error.message || "Failed to shuffle Secondary Accent.", true);
   } finally {
