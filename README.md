@@ -49,16 +49,22 @@ http://localhost:8080
 
 ## CORS (Render deployment)
 
-Set allowed origins via env var:
+Set allowed frontend origins via environment variable:
 
 ```text
 APP_CORS_ALLOWED_ORIGINS=https://<your-frontend>.onrender.com
 ```
 
-For multiple origins, use comma-separated values:
+For multiple frontend domains, use comma-separated values:
 
 ```text
 APP_CORS_ALLOWED_ORIGINS=https://<your-frontend>.onrender.com,https://<custom-domain>
+```
+
+For local multi-port development (optional):
+
+```text
+APP_CORS_ALLOWED_ORIGIN_PATTERNS=http://localhost:*,http://127.0.0.1:*
 ```
 
 ## Frontend API base URL (optional)
@@ -76,6 +82,8 @@ When frontend and API are on different domains, set a global variable before loa
 ```bash
 mvn clean package
 ```
+
+Build outputs are generated under `target/` and should not be committed.
 
 ## Main Paths
 
