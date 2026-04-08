@@ -98,7 +98,6 @@ const elements = {
   usabilityLabel: document.getElementById("usabilityLabel"),
   accessibilityLabel: document.getElementById("accessibilityLabel"),
   primaryRoleContainer: document.getElementById("primaryRoleContainer"),
-  secondaryRolesContainer: document.getElementById("secondaryRolesContainer"),
   sceneHeadline: document.getElementById("sceneHeadline"),
   sceneSummary: document.getElementById("sceneSummary"),
   results: document.getElementById("results"),
@@ -234,7 +233,6 @@ function attachRoleCardEvents(container, role, config) {
 
 function renderFixedColors() {
   elements.primaryRoleContainer.innerHTML = "";
-  elements.secondaryRolesContainer.innerHTML = "";
 
   const primaryRole = "PRIMARY_ACCENT";
   const primaryConfig = state.fixedColors[primaryRole];
@@ -243,15 +241,6 @@ function renderFixedColors() {
   const primaryCard = primaryWrapper.firstElementChild;
   attachRoleCardEvents(primaryCard, primaryRole, primaryConfig);
   elements.primaryRoleContainer.appendChild(primaryCard);
-
-  ROLE_ORDER.filter((role) => role !== "PRIMARY_ACCENT").forEach((role) => {
-    const config = state.fixedColors[role];
-    const wrapper = document.createElement("div");
-    wrapper.innerHTML = roleCardMarkup(role, config);
-    const card = wrapper.firstElementChild;
-    attachRoleCardEvents(card, role, config);
-    elements.secondaryRolesContainer.appendChild(card);
-  });
 }
 
 function getReadableTextColor(hex) {
