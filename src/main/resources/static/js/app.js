@@ -152,6 +152,18 @@ function updateWeightLabels() {
   elements.accessibilityLabel.textContent = `${elements.accessibility.value}%`;
 }
 
+function fallbackFixedColors(seedHex) {
+  const seed = normalizeHex(seedHex) || "#4f46e5";
+  return {
+    PRIMARY_ACCENT: { enabled: true, hex: seed, rule: "FIXED" },
+    SECONDARY_ACCENT: { enabled: false, hex: "#5864e8", rule: "LIGHTNESS_SATURATION" },
+    BACKGROUND: { enabled: false, hex: "#ffffff", rule: "LIGHTNESS_SATURATION" },
+    SURFACE: { enabled: false, hex: "#f7f7f7", rule: "LIGHTNESS_SATURATION" },
+    TEXT: { enabled: false, hex: "#111111", rule: "LIGHTNESS" },
+    BORDER: { enabled: false, hex: "#d0d7e2", rule: "LIGHTNESS_SATURATION" }
+  };
+}
+
 function rebalanceWeights(targetKey, newValue) {
   const current = {
     style: Number(elements.style.value),
@@ -188,11 +200,17 @@ function rebalanceWeights(targetKey, newValue) {
 }
 
 async function loadDefaults(seedHex) {
-  const response = await fetch(`${apiUrl("/defaults")}?baseHex=${encodeURIComponent(seedHex)}`);
-  if (!response.ok) throw new Error("Failed to load default role colors.");
-  const data = await response.json();
-  state.fixedColors = data.fixedColors || {};
-  renderFixedColors();
+  try {
+    const response = await fetch(`${apiUrl("/defaults")}?baseHex=${encodeURIComponent(seedHex)}`);
+    if (!response.ok) throw new Error("Failed to load default role colors.");
+    const data = await response.json();
+    state.fixedColors = data.fixedColors || {};
+    renderFixedColors();
+  } catch (error) {
+    state.fixedColors = fallbackFixedColors(seedHex);
+    renderFixedColors();
+    throw error;
+  }
 }
 
 function roleCardMarkup(role, config) {
