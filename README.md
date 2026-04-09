@@ -23,6 +23,7 @@ Palette Engine is a Spring Boot app that generates a full six-role UI palette fr
   - `AAA / AA / Text AA / Accent Free / Large AA / Fail`
 - Card-specific `Secondary Accent` shuffle
   - Only the selected card is updated
+  - Shuffled Secondary hue is anchored, while tone/priority still adjust its lightness/saturation
 - CVD simulation:
   - `Normal / P-type / D-type`
 - About page:

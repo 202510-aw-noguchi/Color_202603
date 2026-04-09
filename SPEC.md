@@ -89,6 +89,10 @@ Each palette uses six role slots and is evaluated for text readability.
 - Large AA
 - Fail
 
+`Text AA / Accent Free` means:
+- Core text pairs meet the text minimum contrast target.
+- Accent safety is not satisfied (or intentionally not enforced), so accent contrast is treated as guidance, not a hard pass/fail gate.
+
 ---
 
 ## Card UI
@@ -114,7 +118,8 @@ Each card shows:
 - A `Shuffle` action exists on the `Secondary Accent` row.
 - On shuffle:
   - Primary Accent of that card is fixed.
-  - Secondary Accent is re-proposed.
+  - Secondary Accent hue is re-proposed and used as an anchor.
+  - Secondary Accent lightness/saturation are still recalculated by Tone Controls and Priority Ratio.
   - Background / Surface / Text / Border are recalculated from that condition.
 - Only the selected card is updated.
 - Other cards remain unchanged.
