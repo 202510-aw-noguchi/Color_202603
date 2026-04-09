@@ -127,7 +127,7 @@ function updateAxisLabels() {
   const depth = Number(elements.depth.value);
   elements.warmthValue.textContent = warmth > 0 ? `Warm +${warmth}` : warmth < 0 ? `Cool ${warmth}` : "Neutral";
   elements.saturationValue.textContent = saturation > 0 ? `Vivid +${saturation}` : saturation < 0 ? `Muted ${saturation}` : "Balanced";
-  elements.depthValue.textContent = depth > 0 ? `Deep +${depth}` : depth < 0 ? `Light ${depth}` : "Balanced";
+  elements.depthValue.textContent = depth > 0 ? `Light +${depth}` : depth < 0 ? `Deep ${depth}` : "Balanced";
 }
 
 function updateWeightLabels() {
@@ -674,7 +674,7 @@ async function shuffleSecondaryForCard(index) {
       ...(fixedColors.SECONDARY_ACCENT || {}),
       enabled: true,
       hex: secondaryHex,
-      rule: "FIXED"
+      rule: "LIGHTNESS_SATURATION"
     };
     request.fixedColors = fixedColors;
 

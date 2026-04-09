@@ -17,6 +17,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -88,6 +89,40 @@ class PaletteServiceTest {
         assertTrue(missing.isEmpty(), () -> "Missing defaults for roles: " + missing);
     }
 
+    @Test
+    void generatePalettes_priorityRatioExtremes_showStrongVisualDifference() {
+        PaletteRequest styleHeavy = baseRequest("#4f46e5", 100, 0, 0);
+        PaletteRequest accessibilityHeavy = baseRequest("#4f46e5", 0, 0, 100);
+
+        PaletteOption styleBaseline = findPattern(
+                paletteService.generatePalettes(styleHeavy),
+                PatternName.BASELINE);
+        PaletteOption accessibilityBaseline = findPattern(
+                paletteService.generatePalettes(accessibilityHeavy),
+                PatternName.BASELINE);
+
+        String styleSecondary = styleBaseline.getRoles().get(RoleName.SECONDARY_ACCENT);
+        String accessibilitySecondary = accessibilityBaseline.getRoles().get(RoleName.SECONDARY_ACCENT);
+        String styleText = styleBaseline.getRoles().get(RoleName.TEXT);
+        String accessibilityText = accessibilityBaseline.getRoles().get(RoleName.TEXT);
+
+        assertNotEquals(styleSecondary, accessibilitySecondary,
+                "Secondary Accent should differ when Priority Ratio shifts from Style-heavy to Accessibility-heavy.");
+        assertNotEquals(styleText, accessibilityText,
+                "Text role should differ when Priority Ratio shifts from Style-heavy to Accessibility-heavy.");
+
+        double satDiff = Math.abs(
+                ColorUtils.hexToHsl(styleSecondary).s() - ColorUtils.hexToHsl(accessibilitySecondary).s());
+        assertTrue(satDiff >= 15.0,
+                () -> "Secondary Accent saturation difference should be strong (>=15), actual: " + satDiff);
+
+        double textBgDiff = Math.abs(
+                styleBaseline.getContrast().getTextOnBackground()
+                        - accessibilityBaseline.getContrast().getTextOnBackground());
+        assertTrue(textBgDiff >= 1.0,
+                () -> "Text/background contrast should shift clearly (>=1.0), actual: " + textBgDiff);
+    }
+
     private PaletteRequest baseRequest(String baseHex, int style, int usability, int accessibility) {
         PaletteRequest request = new PaletteRequest();
         request.setBaseHex(baseHex);
@@ -101,5 +136,12 @@ class PaletteServiceTest {
         request.setAccessibility(accessibility);
         request.setFixedColors(paletteService.defaultFixedColors(baseHex));
         return request;
+    }
+
+    private PaletteOption findPattern(PaletteResponse response, PatternName target) {
+        return response.getPalettes().stream()
+                .filter(option -> option.getName() == target)
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException("Missing pattern: " + target));
     }
 }

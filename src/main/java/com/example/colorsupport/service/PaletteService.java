@@ -73,6 +73,7 @@ public class PaletteService {
 
     private PaletteOption generatePattern(PatternName pattern, PaletteRequest request) {
         Hsl seed = ColorUtils.hexToHsl(request.getBaseHex());
+        PriorityProfile priority = priorityProfile(request);
         SceneAdjusted adjusted = sceneAdjusted(seed, request);
         PatternPolicy policy = patternPolicy(pattern, request);
 
@@ -92,28 +93,28 @@ public class PaletteService {
 
         switch (pattern) {
             case BASELINE -> {
-                secondaryHue += 12;
-                primarySat = ColorUtils.clamp(primarySat - 4, 10, 88);
-                secondarySat = ColorUtils.clamp(secondarySat - 6, 8, 78);
+                secondaryHue += 8;
+                primarySat = ColorUtils.clamp(primarySat - 6, 8, 84);
+                secondarySat = ColorUtils.clamp(secondarySat - 10, 6, 72);
             }
             case CLARITY -> {
-                bgL = request.getBackgroundMode() == BackgroundMode.LIGHT ? 98.5 : 7.5;
-                surfaceL = request.getBackgroundMode() == BackgroundMode.LIGHT ? 94.5 : 14.0;
-                borderL = request.getBackgroundMode() == BackgroundMode.LIGHT ? 84.0 : 28.0;
-                textL = request.getBackgroundMode() == BackgroundMode.LIGHT ? 9.0 : 96.5;
+                bgL = request.getBackgroundMode() == BackgroundMode.LIGHT ? 99.0 : 6.8;
+                surfaceL = request.getBackgroundMode() == BackgroundMode.LIGHT ? 95.2 : 13.2;
+                borderL = request.getBackgroundMode() == BackgroundMode.LIGHT ? 82.0 : 30.0;
+                textL = request.getBackgroundMode() == BackgroundMode.LIGHT ? 8.2 : 97.0;
 
-                secondaryHue += 55;
-                primarySat = ColorUtils.clamp(primarySat - 10, 8, 76);
-                secondarySat = ColorUtils.clamp(secondarySat - 12, 8, 70);
-                primaryL = request.getBackgroundMode() == BackgroundMode.LIGHT ? primaryL - 8 : primaryL + 8;
+                secondaryHue -= 30;
+                primarySat = ColorUtils.clamp(primarySat - 16, 6, 66);
+                secondarySat = ColorUtils.clamp(secondarySat - 22, 6, 58);
+                primaryL = request.getBackgroundMode() == BackgroundMode.LIGHT ? primaryL - 10 : primaryL + 9;
             }
             case EXPRESSION -> {
-                primaryHue += 24 + request.getWarmth() * 4;
-                secondaryHue += 95;
-                primarySat = ColorUtils.clamp(primarySat + 12, 18, 100);
-                secondarySat = ColorUtils.clamp(secondarySat + 14, 18, 100);
-                primaryL = request.getBackgroundMode() == BackgroundMode.LIGHT ? primaryL - 8 : primaryL + 8;
-                secondaryL = request.getBackgroundMode() == BackgroundMode.LIGHT ? secondaryL - 2 : secondaryL + 8;
+                primaryHue += 42 + request.getWarmth() * 5;
+                secondaryHue += 128;
+                primarySat = ColorUtils.clamp(primarySat + 20, 24, 100);
+                secondarySat = ColorUtils.clamp(secondarySat + 28, 26, 100);
+                primaryL = request.getBackgroundMode() == BackgroundMode.LIGHT ? primaryL - 6 : primaryL + 6;
+                secondaryL = request.getBackgroundMode() == BackgroundMode.LIGHT ? secondaryL - 10 : secondaryL + 10;
             }
             case SERENE -> {
                 bgL = request.getBackgroundMode() == BackgroundMode.LIGHT ? 98.4 : 13.5;
@@ -128,19 +129,43 @@ public class PaletteService {
                 secondaryL += 14;
             }
             case IMPACT -> {
-                bgL = request.getBackgroundMode() == BackgroundMode.LIGHT ? 93.0 : 8.0;
-                surfaceL = request.getBackgroundMode() == BackgroundMode.LIGHT ? 88.0 : 15.5;
-                borderL = request.getBackgroundMode() == BackgroundMode.LIGHT ? 76.0 : 32.0;
-                textL = request.getBackgroundMode() == BackgroundMode.LIGHT ? 12.0 : 95.0;
+                bgL = request.getBackgroundMode() == BackgroundMode.LIGHT ? 90.0 : 7.0;
+                surfaceL = request.getBackgroundMode() == BackgroundMode.LIGHT ? 84.0 : 14.0;
+                borderL = request.getBackgroundMode() == BackgroundMode.LIGHT ? 66.0 : 36.0;
+                textL = request.getBackgroundMode() == BackgroundMode.LIGHT ? 8.5 : 96.0;
 
-                primaryHue += 32;
-                secondaryHue += 140;
-                primarySat = ColorUtils.clamp(primarySat + 18, 24, 100);
-                secondarySat = ColorUtils.clamp(secondarySat + 14, 18, 100);
-                primaryL = request.getBackgroundMode() == BackgroundMode.LIGHT ? primaryL - 12 : primaryL + 10;
-                secondaryL = request.getBackgroundMode() == BackgroundMode.LIGHT ? secondaryL - 6 : secondaryL + 8;
+                primaryHue += 58;
+                secondaryHue += 186;
+                primarySat = ColorUtils.clamp(primarySat + 28, 30, 100);
+                secondarySat = ColorUtils.clamp(secondarySat + 32, 30, 100);
+                primaryL = request.getBackgroundMode() == BackgroundMode.LIGHT ? primaryL - 18 : primaryL + 12;
+                secondaryL = request.getBackgroundMode() == BackgroundMode.LIGHT ? secondaryL - 18 : secondaryL + 14;
             }
         }
+
+        PatternTones tones = applyPriorityInfluence(
+                request,
+                priority,
+                primaryHue,
+                secondaryHue,
+                primarySat,
+                secondarySat,
+                primaryL,
+                secondaryL,
+                bgL,
+                surfaceL,
+                textL,
+                borderL);
+        primaryHue = tones.primaryHue();
+        secondaryHue = tones.secondaryHue();
+        primarySat = tones.primarySat();
+        secondarySat = tones.secondarySat();
+        primaryL = tones.primaryLightness();
+        secondaryL = tones.secondaryLightness();
+        bgL = tones.backgroundLightness();
+        surfaceL = tones.surfaceLightness();
+        textL = tones.textLightness();
+        borderL = tones.borderLightness();
 
         Map<RoleName, String> roles = new LinkedHashMap<>();
         roles.put(RoleName.BACKGROUND, ColorUtils.hslToHex(new Hsl(primaryHue, 10, bgL)));
@@ -453,13 +478,85 @@ public class PaletteService {
     }
 
     private PatternPolicy patternPolicy(PatternName pattern, PaletteRequest request) {
-        return switch (pattern) {
-            case BASELINE -> new PatternPolicy(4.5, true);
-            case CLARITY -> new PatternPolicy(
-                    request.getScene() == Scene.PRESENTATION ? 5.5 : 4.8,
-                    true);
-            case EXPRESSION, SERENE, IMPACT -> new PatternPolicy(4.5, false);
+        double baseMin = switch (pattern) {
+            case BASELINE -> 4.5;
+            case CLARITY -> request.getScene() == Scene.PRESENTATION ? 5.5 : 4.8;
+            case EXPRESSION, SERENE, IMPACT -> 4.5;
         };
+        double weightedMin = baseMin
+                + request.getAccessibility() * 0.018
+                + request.getUsability() * 0.009
+                - request.getStyle() * 0.012;
+        double textMin = ColorUtils.clamp(weightedMin, 3.8, 7.0);
+
+        boolean enforceAccentSafety = switch (pattern) {
+            case BASELINE, CLARITY -> true;
+            case EXPRESSION, SERENE, IMPACT -> request.getAccessibility() + request.getUsability() >= request.getStyle() + 15;
+        };
+        return new PatternPolicy(textMin, enforceAccentSafety);
+    }
+
+    private PriorityProfile priorityProfile(PaletteRequest request) {
+        return new PriorityProfile(
+                (request.getStyle() - 34.0) / 50.0,
+                (request.getUsability() - 33.0) / 50.0,
+                (request.getAccessibility() - 33.0) / 50.0);
+    }
+
+    private PatternTones applyPriorityInfluence(
+            PaletteRequest request,
+            PriorityProfile priority,
+            double primaryHue,
+            double secondaryHue,
+            double primarySat,
+            double secondarySat,
+            double primaryLightness,
+            double secondaryLightness,
+            double backgroundLightness,
+            double surfaceLightness,
+            double textLightness,
+            double borderLightness) {
+        double styleBias = priority.styleBias();
+        double usabilityBias = priority.usabilityBias();
+        double accessibilityBias = priority.accessibilityBias();
+
+        double expressivePush = styleBias * 16 - accessibilityBias * 8 - usabilityBias * 4;
+        double contrastPush = accessibilityBias * 11 + usabilityBias * 7 - styleBias * 4;
+        double clarityPush = usabilityBias * 8 + accessibilityBias * 4 - styleBias * 3;
+
+        primaryHue = ColorUtils.wrapHue(primaryHue + styleBias * 7 - accessibilityBias * 2);
+        secondaryHue = ColorUtils.wrapHue(secondaryHue + styleBias * 24 - usabilityBias * 6 + accessibilityBias * 3);
+        primarySat = ColorUtils.clamp(primarySat + expressivePush, 6, 100);
+        secondarySat = ColorUtils.clamp(secondarySat + expressivePush * 1.15 + styleBias * 6, 6, 100);
+
+        double accentLightnessShift = styleBias * 7 - accessibilityBias * 4 - usabilityBias * 2;
+        if (request.getBackgroundMode() == BackgroundMode.LIGHT) {
+            primaryLightness = ColorUtils.clamp(primaryLightness - accentLightnessShift, 10, 84);
+            secondaryLightness = ColorUtils.clamp(secondaryLightness - accentLightnessShift * 0.9, 10, 90);
+            backgroundLightness = ColorUtils.clamp(backgroundLightness + contrastPush * 0.7, 86, 99);
+            surfaceLightness = ColorUtils.clamp(surfaceLightness + contrastPush * 0.5 + clarityPush * 0.3, 80, 98);
+            textLightness = ColorUtils.clamp(textLightness - contrastPush * 0.9 - clarityPush * 0.4, 4, 28);
+            borderLightness = ColorUtils.clamp(borderLightness - contrastPush * 0.6 + clarityPush * 0.2, 62, 94);
+        } else {
+            primaryLightness = ColorUtils.clamp(primaryLightness + accentLightnessShift, 14, 92);
+            secondaryLightness = ColorUtils.clamp(secondaryLightness + accentLightnessShift * 0.9, 14, 96);
+            backgroundLightness = ColorUtils.clamp(backgroundLightness - contrastPush * 0.7, 3, 20);
+            surfaceLightness = ColorUtils.clamp(surfaceLightness - contrastPush * 0.5 - clarityPush * 0.3, 6, 28);
+            textLightness = ColorUtils.clamp(textLightness + contrastPush * 0.9 + clarityPush * 0.4, 76, 99);
+            borderLightness = ColorUtils.clamp(borderLightness + contrastPush * 0.6 - clarityPush * 0.2, 14, 46);
+        }
+
+        return new PatternTones(
+                primaryHue,
+                secondaryHue,
+                primarySat,
+                secondarySat,
+                primaryLightness,
+                secondaryLightness,
+                backgroundLightness,
+                surfaceLightness,
+                textLightness,
+                borderLightness);
     }
 
     private SceneAdjusted sceneAdjusted(Hsl seed, PaletteRequest request) {
@@ -574,6 +671,25 @@ public class PaletteService {
             double borderLightness,
             double primaryLightness,
             double baseAccentSeparation) {
+    }
+
+    private record PriorityProfile(
+            double styleBias,
+            double usabilityBias,
+            double accessibilityBias) {
+    }
+
+    private record PatternTones(
+            double primaryHue,
+            double secondaryHue,
+            double primarySat,
+            double secondarySat,
+            double primaryLightness,
+            double secondaryLightness,
+            double backgroundLightness,
+            double surfaceLightness,
+            double textLightness,
+            double borderLightness) {
     }
 
     private record PatternPolicy(
